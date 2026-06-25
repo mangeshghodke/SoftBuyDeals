@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { readFileSync, existsSync } from 'fs';
+
+const DATA_FILE = 'src/data/products.json';
+
+interface Product {
+  id: string; title: string; price: string; originalPrice: string;
+  imageUrl: string; amazonUrl: string; affiliateUrl: string;
+  description: string; rating: string; category: string; createdAt: string;
+}
+
+function getProducts(): Product[] {
+  try {
+    if (!existsSync(DATA_FILE)) return [];
+    return JSON.parse(readFileSync(DATA_FILE, 'utf-8')).products || [];
+  } catch { return []; }
+}
+
+const allProducts = getProducts();
+const categories = [...new Set(allProducts.map(p => p.category))];
+const selectedCategory = Astro.url.searchParams.get('category');
+const products = selectedCategory
+  ? allProducts.filter(p => p.category === selectedCategory)
+  : allProducts;
+---
+
+<BaseLayout title="Products" description="Browse our curated collection of best deals on Amazon.in">
+  <section class="py-8 md:py-16">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h1 class="font-heading text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+          Best Deals on <span class="text-gradient">Amazon.in</span>
+        </h1>
+        <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          Curated products with the best prices, handpicked just for you. Click & buy directly from Amazon.in.
+        </p>
+      </div>
+
+      {categories.length > 1 && (
+        <div class="flex flex-wrap justify-center gap-2 mb-10">
+          <a
+            href="/products"
+            class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${!selectedCategory ? 'bg-primary-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+          >
+            All
+          </a>
+          {categories.map(cat => (
+            <a
+              href={`/products?category=${encodeURIComponent(cat)}`}
+              class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat ? 'bg-primary-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+            >
+              {cat}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {products.length === 0 ? (
+        <div class="text-center py-20">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-6 text-slate-300 dark:text-slate-600">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <h2 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No products yet</h2>
+          <p class="text-slate-500 dark:text-slate-400">Check back soon for amazing deals!</p>
+        </div>
+      ) : (
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {products.map(product => (
+            <ProductCard product={product} />
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>

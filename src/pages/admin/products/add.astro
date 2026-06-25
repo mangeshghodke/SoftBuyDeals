@@ -1,0 +1,185 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Button from '../../../components/Button.astro';
+---
+
+<BaseLayout title="Add Product">
+  <section class="py-8 md:py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+      <div class="mb-8">
+        <a href="/admin/dashboard" class="text-sm text-primary-600 dark:text-primary-400 hover:underline mb-2 inline-block">&larr; Back to Dashboard</a>
+        <h1 class="font-heading text-3xl font-bold text-slate-900 dark:text-white">Add Product</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Paste an Amazon.in link to auto-fetch details, or fill in manually.</p>
+      </div>
+
+      <div class="glass-panel rounded-2xl p-6 sm:p-8 mb-8">
+        <label class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Amazon.in Product URL</label>
+        <div class="flex gap-3">
+          <input
+            id="amazon-url"
+            type="url"
+            placeholder="https://www.amazon.in/dp/..."
+            class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          />
+          <button
+            id="fetch-btn"
+            class="px-6 py-3 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            Fetch Details
+          </button>
+        </div>
+        <div id="fetch-status" class="mt-2 text-sm hidden"></div>
+      </div>
+
+      <form id="product-form" method="POST" action="/api/products/" class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6">
+        <input type="hidden" name="amazonUrl" id="amazonUrl" />
+        <input type="hidden" name="affiliateUrl" id="affiliateUrl" />
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label for="title" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Product Title</label>
+            <input id="title" name="title" type="text" required
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              placeholder="Product Name"
+            />
+          </div>
+
+          <div>
+            <label for="price" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Price</label>
+            <input id="price" name="price" type="text" required
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              placeholder="₹1,299"
+            />
+          </div>
+
+          <div>
+            <label for="originalPrice" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Original Price (M.R.P.)</label>
+            <input id="originalPrice" name="originalPrice" type="text"
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              placeholder="₹2,499"
+            />
+          </div>
+
+          <div>
+            <label for="rating" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Rating</label>
+            <input id="rating" name="rating" type="text"
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              placeholder="4.5 out of 5 stars"
+            />
+          </div>
+
+          <div>
+            <label for="category" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
+            <input id="category" name="category" type="text"
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              placeholder="Electronics"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="imageUrl" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Image URL</label>
+            <div class="flex gap-4 items-start">
+              <div class="flex-1">
+                <input id="imageUrl" name="imageUrl" type="url"
+                  class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  placeholder="https://m.media-amazon.com/images/..."
+                />
+              </div>
+              <div id="image-preview" class="w-20 h-20 rounded-xl bg-slate-100 dark:bg-slate-800 flex-shrink-0 overflow-hidden hidden">
+                <img id="preview-img" class="w-full h-full object-cover" alt="Preview" />
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="description" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+            <textarea id="description" name="description" rows="4"
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white resize-none"
+              placeholder="Product description..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <Button type="submit" variant="primary">Save Product</Button>
+          <a href="/admin/dashboard" class="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const fetchBtn = document.getElementById('fetch-btn');
+  const amazonUrlInput = document.getElementById('amazon-url');
+  const fetchStatus = document.getElementById('fetch-status');
+  const form = document.getElementById('product-form');
+
+  function showStatus(msg, isError = false) {
+    fetchStatus.textContent = msg;
+    fetchStatus.className = `mt-2 text-sm ${isError ? 'text-red-500' : 'text-green-500'} block`;
+  }
+
+  function showImagePreview(url) {
+    const container = document.getElementById('image-preview');
+    const img = document.getElementById('preview-img');
+    if (url) {
+      container.classList.remove('hidden');
+      img.src = url;
+    } else {
+      container.classList.add('hidden');
+    }
+  }
+
+  document.getElementById('imageUrl').addEventListener('input', (e) => {
+    showImagePreview(e.target.value);
+  });
+
+  fetchBtn.addEventListener('click', async () => {
+    const url = amazonUrlInput.value.trim();
+    if (!url) {
+      showStatus('Please enter an Amazon URL', true);
+      return;
+    }
+
+    fetchBtn.disabled = true;
+    fetchBtn.textContent = 'Fetching...';
+    showStatus('Fetching product details...');
+
+    try {
+      const res = await fetch('/api/fetch-amazon/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        showStatus(`Error: ${data.error}`, true);
+        return;
+      }
+
+      document.getElementById('amazonUrl').value = data.amazonUrl || '';
+      document.getElementById('affiliateUrl').value = data.affiliateUrl || '';
+
+      if (data.notice) {
+        showStatus(data.notice, true);
+      } else {
+        document.getElementById('title').value = data.title || '';
+        document.getElementById('price').value = data.price || '';
+        document.getElementById('originalPrice').value = data.originalPrice || '';
+        document.getElementById('rating').value = data.rating || '';
+        document.getElementById('imageUrl').value = data.imageUrl || '';
+        document.getElementById('description').value = data.description || '';
+        if (data.imageUrl) showImagePreview(data.imageUrl);
+        showStatus('Product details fetched successfully!');
+      }
+    } catch (err) {
+      showStatus('Amazon blocked the request. Fill in details manually below.', true);
+    } finally {
+      fetchBtn.disabled = false;
+      fetchBtn.textContent = 'Fetch Details';
+    }
+  });
+</script>

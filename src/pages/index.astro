@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { readFileSync, existsSync } from 'fs';
+
+const DATA_FILE = 'src/data/products.json';
+
+interface Product {
+  id: string; title: string; price: string; originalPrice: string;
+  imageUrl: string; amazonUrl: string; affiliateUrl: string;
+  description: string; rating: string; category: string; createdAt: string;
+}
+
+function getProducts(): Product[] {
+  try {
+    if (!existsSync(DATA_FILE)) return [];
+    return JSON.parse(readFileSync(DATA_FILE, 'utf-8')).products || [];
+  } catch { return []; }
+}
+
+const products = getProducts();
+const featuredProducts = products.slice(0, 4);
+const categories = [...new Set(products.map(p => p.category))];
+---
+
+<BaseLayout title="Home">
+  <section class="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-primary-50 dark:from-[#09090b] dark:via-slate-900 dark:to-primary-950 py-20 md:py-32">
+    <div class="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Best Prices on Amazon.in
+        </div>
+        <h1 class="font-heading text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6">
+          Smart Deals, <span class="text-gradient">Big Savings</span>
+        </h1>
+        <p class="text-xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+          Curated Amazon.in products at the best prices. Handpicked deals with exclusive affiliate discounts just for you.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="/products/" class="inline-flex items-center gap-2 px-8 py-4 bg-primary-600 text-white rounded-xl text-lg font-semibold hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/25 hover:shadow-primary-600/40">
+            Browse Products
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+          <a href="/#deals" class="inline-flex items-center gap-2 px-8 py-4 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl text-lg font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            Today's Deals
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {products.length > 0 && (
+    <section class="py-16 md:py-24">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="font-heading text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Featured Products</h2>
+          <p class="text-slate-600 dark:text-slate-400 max-w-xl mx-auto">Top picks from our curated collection</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {featuredProducts.map(product => (
+            <ProductCard product={product} />
+          ))}
+        </div>
+        <div class="text-center mt-10">
+          <a href="/products/" class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 font-medium hover:underline">
+            View All Products
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {categories.length > 0 && (
+    <section id="deals" class="py-16 md:py-24 bg-slate-50 dark:bg-[#09090b]/60">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="font-heading text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Shop by Category</h2>
+          <p class="text-slate-600 dark:text-slate-400 max-w-xl mx-auto">Find exactly what you're looking for</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {categories.map(category => (
+            <a
+              href={`/products/?category=${encodeURIComponent(category)}`}
+              class="glass-panel rounded-2xl p-6 text-center hover-glow group"
+            >
+              <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-600 dark:text-primary-400"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+              </div>
+              <h3 class="font-heading font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{category}</h3>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {products.length === 0 && (
+    <section class="py-16 md:py-24">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="max-w-md mx-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-6 text-slate-300 dark:text-slate-600">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Coming Soon!</h2>
+          <p class="text-slate-600 dark:text-slate-400">We're curating the best deals from Amazon.in. Check back soon for amazing products.</p>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="py-16 md:py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="glass-panel rounded-3xl p-8 md:p-12 text-center max-w-4xl mx-auto">
+        <h2 class="font-heading text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Why Shop With Us?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
+          <div>
+            <div class="w-14 h-14 bg-accent-100 dark:bg-accent-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent-600 dark:text-accent-400"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h3 class="font-heading font-semibold text-lg text-slate-900 dark:text-white mb-2">Best Prices</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">We find the lowest prices on Amazon.in so you don't have to.</p>
+          </div>
+          <div>
+            <div class="w-14 h-14 bg-primary-100 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-600 dark:text-primary-400"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <h3 class="font-heading font-semibold text-lg text-slate-900 dark:text-white mb-2">Curated Selection</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Every product is handpicked for quality and value.</p>
+          </div>
+          <div>
+            <div class="w-14 h-14 bg-accent-100 dark:bg-accent-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent-600 dark:text-accent-400"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+            <h3 class="font-heading font-semibold text-lg text-slate-900 dark:text-white mb-2">Price Drop Alerts</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">We track prices and highlight the best deals for you.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

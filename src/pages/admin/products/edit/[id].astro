@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import Button from '../../../../components/Button.astro';
+import { readFileSync, existsSync } from 'fs';
+
+const DATA_FILE = 'src/data/products.json';
+const { id } = Astro.params;
+
+interface Product {
+  id: string; title: string; price: string; originalPrice: string;
+  imageUrl: string; amazonUrl: string; affiliateUrl: string;
+  description: string; rating: string; category: string; createdAt: string;
+}
+
+function getProducts(): Product[] {
+  try {
+    if (!existsSync(DATA_FILE)) return [];
+    return JSON.parse(readFileSync(DATA_FILE, 'utf-8')).products || [];
+  } catch { return []; }
+}
+
+const product = getProducts().find(p => p.id === id);
+if (!product) {
+  return Astro.redirect('/admin/dashboard');
+}
+---
+
+<BaseLayout title="Edit Product">
+  <section class="py-8 md:py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+      <div class="mb-8">
+        <a href="/admin/dashboard" class="text-sm text-primary-600 dark:text-primary-400 hover:underline mb-2 inline-block">&larr; Back to Dashboard</a>
+        <h1 class="font-heading text-3xl font-bold text-slate-900 dark:text-white">Edit Product</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Update the product details below.</p>
+      </div>
+
+      <form method="POST" action="/api/products/" class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6">
+        <input type="hidden" name="id" value={product.id} />
+        <input type="hidden" name="amazonUrl" value={product.amazonUrl} />
+        <input type="hidden" name="affiliateUrl" value={product.affiliateUrl} />
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label for="title" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Product Title</label>
+            <input id="title" name="title" type="text" required value={product.title}
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label for="price" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Price</label>
+            <input id="price" name="price" type="text" required value={product.price}
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label for="originalPrice" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Original Price</label>
+            <input id="originalPrice" name="originalPrice" type="text" value={product.originalPrice}
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label for="rating" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Rating</label>
+            <input id="rating" name="rating" type="text" value={product.rating}
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label for="category" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
+            <input id="category" name="category" type="text" value={product.category}
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="imageUrl" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Image URL</label>
+            <input id="imageUrl" name="imageUrl" type="url" value={product.imageUrl}
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="description" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+            <textarea id="description" name="description" rows="4"
+              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white resize-none"
+            >{product.description}</textarea>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <Button type="submit" variant="primary">Update Product</Button>
+          <a href="/admin/dashboard" class="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
