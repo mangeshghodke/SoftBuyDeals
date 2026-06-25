@@ -64,13 +64,44 @@ export const GET: APIRoute = async ({ url, cookies }) => {
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   if (!checkAuth(cookies)) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401, headers: { 'Content-Type': 'application/json' }
-    });
+    return redirect('/admin/login/');
   }
 
   const formData = await request.formData();
   const products = getProducts();
+  const existingId = formData.get('id')?.toString();
+
+  if (existingId) {
+    const index = products.findIndex(p => p.id === existingId);
+    if (index === -1) {
+      return new Response(JSON.stringify({ error: 'Product not found' }), {
+        status: 404, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    products[index] = {
+      ...products[index],
+      title: formData.get('title')?.toString() || products[index].title,
+      price: formData.get('price')?.toString() || products[index].price,
+      originalPrice: formData.get('originalPrice')?.toString() || products[index].originalPrice,
+      imageUrl: formData.get('imageUrl')?.toString() || products[index].imageUrl,
+      amazonUrl: formData.get('amazonUrl')?.toString() || products[index].amazonUrl,
+      affiliateUrl: formData.get('affiliateUrl')?.toString() || products[index].affiliateUrl,
+      description: formData.get('description')?.toString() || products[index].description,
+      rating: formData.get('rating')?.toString() || products[index].rating,
+      category: formData.get('category')?.toString() || products[index].category,
+    };
+
+    saveProducts(products);
+
+    if (request.headers.get('Accept') === 'application/json') {
+      return new Response(JSON.stringify(products[index]), {
+        status: 200, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return redirect('/admin/dashboard/');
+  }
 
   const newProduct: Product = {
     id: crypto.randomUUID(),
@@ -98,11 +129,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   return redirect('/admin/dashboard/');
 };
 
-export const PUT: APIRoute = async ({ request, cookies }) => {
+export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
   if (!checkAuth(cookies)) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401, headers: { 'Content-Type': 'application/json' }
-    });
+    return redirect('/admin/login/');
   }
 
   const formData = await request.formData();

@@ -8,10 +8,8 @@ import { resolvePath } from '../utils/navigation';
   role="dialog"
   aria-modal="true"
 >
-  <!-- Backdrop -->
   <div data-command-backdrop class="fixed inset-0 z-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
 
-  <!-- Palette -->
   <div class="relative z-10 mx-auto max-w-2xl transform divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-slate-900/5 transition-all">
     <div class="relative">
       <svg
@@ -29,23 +27,20 @@ import { resolvePath } from '../utils/navigation';
         type="text"
         id="search-input"
         class="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-0 sm:text-sm"
-        placeholder="Search for articles, updates, and more..."
+        placeholder="Search products, blog posts, and more..."
         role="combobox"
         aria-expanded="false"
         aria-controls="options"
       />
     </div>
 
-    <!-- Results list -->
     <ul
       class="max-h-96 scroll-py-3 overflow-y-auto p-3 hidden"
       id="search-results"
       role="listbox"
     >
-      <!-- Results will be injected here -->
     </ul>
 
-    <!-- Empty state / Help -->
     <div id="search-help" class="px-6 py-14 text-center sm:px-14">
       <svg
         class="mx-auto h-6 w-6 text-slate-400"
@@ -60,15 +55,13 @@ import { resolvePath } from '../utils/navigation';
           stroke-linejoin="round"
           d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
       </svg>
-      <p class="mt-4 text-sm text-slate-900 dark:text-white font-medium">No recent searches</p>
-      <p class="mt-2 text-sm text-slate-500">Quickly find blog posts and product updates by typing.</p>
+      <p class="mt-4 text-sm text-slate-900 dark:text-white font-medium">Search products & content</p>
+      <p class="mt-2 text-sm text-slate-500">Type to search for products, blog posts, and updates.</p>
     </div>
   </div>
 </div>
 
 <script is:inline define:vars={{ resolvePath: resolvePath('/') }}>
-  // We use define:vars to pass the base path resolution to the client-side script
-  
   function setupSearch() {
     const palette = document.getElementById('command-palette');
     const input = document.getElementById('search-input');
@@ -100,7 +93,7 @@ import { resolvePath } from '../utils/navigation';
     function getMatches(query) {
       return window.__zenixSearchIndex.filter(item => 
         item.title.toLowerCase().includes(query) || 
-        item.description.toLowerCase().includes(query)
+        (item.description && item.description.toLowerCase().includes(query))
       );
     }
 
@@ -137,7 +130,6 @@ import { resolvePath } from '../utils/navigation';
     if (palette.dataset.searchBound === 'true') return;
     palette.dataset.searchBound = 'true';
 
-    // Click backdrop to close
     palette.addEventListener('click', (e) => {
       if (e.target === palette || e.target === backdrop) {
         togglePalette();
@@ -169,28 +161,35 @@ import { resolvePath } from '../utils/navigation';
         return;
       }
 
-      resultsList.innerHTML = matches.map((item, idx) => `
+      resultsList.innerHTML = matches.map((item, idx) => {
+        const href = item.url || `${resolvePath}${item.slug.startsWith('/') ? item.slug.slice(1) : item.slug}`;
+        const icon = item.type === 'Product' ? 'P' : item.type.charAt(0);
+
+        return `
         <li
           class="group cursor-pointer select-none rounded-xl p-3 hover:bg-primary-600 dark:hover:bg-primary-500 transition-colors"
           role="option"
           tabindex="-1"
+          data-href="${href}"
         >
-          <a href="${resolvePath}${item.slug.startsWith('/') ? item.slug.slice(1) : item.slug}" class="flex items-center">
-            <div class="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-white/20">
-              <span class="text-xs font-bold text-slate-500 dark:text-slate-400 group-hover:text-white uppercase">${item.type.charAt(0)}</span>
+          <a href="${href}" class="flex items-center">
+            <div class="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-white/20 overflow-hidden">
+              ${item.image && item.type === 'Product'
+                ? `<img src="${item.image}" alt="" class="w-full h-full object-contain p-1" />`
+                : `<span class="text-xs font-bold text-slate-500 dark:text-slate-400 group-hover:text-white uppercase">${icon}</span>`
+              }
             </div>
-            <div class="ml-4 flex-auto">
-              <p class="text-sm font-medium text-slate-900 dark:text-white group-hover:text-white">${item.title}</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-primary-100 line-clamp-1">${item.description}</p>
+            <div class="ml-4 flex-auto min-w-0">
+              <p class="text-sm font-medium text-slate-900 dark:text-white group-hover:text-white truncate">${item.title}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-primary-100 line-clamp-1">${item.type === 'Product' ? (item.category ? `[${item.category}] ` : '') + (item.description || '') : item.description}</p>
             </div>
+            ${item.type === 'Product' ? '<svg class="ml-2 w-4 h-4 flex-shrink-0 text-slate-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>' : ''}
           </a>
-        </li>
-      `).join('');
+        </li>`;
+      }).join('');
     }
-
   }
 
-  // Setup on page load and view transition
   setupSearch();
   document.addEventListener('astro:page-load', setupSearch);
 </script>
