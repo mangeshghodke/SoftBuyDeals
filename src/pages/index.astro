@@ -1,22 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductCard from '../components/ProductCard.astro';
-import { readFileSync, existsSync } from 'fs';
-
-const DATA_FILE = 'src/data/products.json';
-
-interface Product {
-  id: string; title: string; price: string; originalPrice: string;
-  imageUrl: string; amazonUrl: string; affiliateUrl: string;
-  description: string; rating: string; category: string; createdAt: string;
-}
-
-function getProducts(): Product[] {
-  try {
-    if (!existsSync(DATA_FILE)) return [];
-    return JSON.parse(readFileSync(DATA_FILE, 'utf-8')).products || [];
-  } catch { return []; }
-}
+import { getProducts } from '../lib/data';
 
 const products = getProducts();
 const featuredProducts = products.slice(0, 4);

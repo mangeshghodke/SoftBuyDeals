@@ -1,24 +1,9 @@
 ---
 import BaseLayout from '../../../../layouts/BaseLayout.astro';
 import Button from '../../../../components/Button.astro';
-import { readFileSync, existsSync } from 'fs';
+import { getProducts } from '../../../../lib/data';
 
-const DATA_FILE = 'src/data/products.json';
 const { id } = Astro.params;
-
-interface Product {
-  id: string; title: string; price: string; originalPrice: string;
-  imageUrl: string; amazonUrl: string; affiliateUrl: string;
-  description: string; rating: string; category: string; createdAt: string;
-}
-
-function getProducts(): Product[] {
-  try {
-    if (!existsSync(DATA_FILE)) return [];
-    return JSON.parse(readFileSync(DATA_FILE, 'utf-8')).products || [];
-  } catch { return []; }
-}
-
 const product = getProducts().find(p => p.id === id);
 if (!product) {
   return Astro.redirect('/admin/dashboard/');

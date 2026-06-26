@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { validateSession } from '../../lib/session';
 
 const DATA_FILE = 'src/data/products.json';

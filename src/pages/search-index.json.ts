@@ -1,5 +1,5 @@
 import { getCollection } from 'astro:content';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync } from 'node:fs';
 
 const DATA_FILE = 'src/data/products.json';
 
