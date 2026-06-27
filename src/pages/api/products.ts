@@ -17,12 +17,6 @@ function formatRating(rating: string | undefined): string | undefined {
   return rating;
 }
 
-const VALID_CATEGORIES = [
-  'Electronics', 'Home & Kitchen', 'Books', 'Fashion',
-  'Beauty', 'Sports', 'Toys', 'Automotive', 'Groceries',
-  'Health', 'Office', 'Music', 'Uncategorized',
-];
-
 function checkAuth(cookies: any, secret: string): { authed: boolean; token?: string } {
   const sessionToken = cookies.get('session')?.value;
   if (!sessionToken || !validateSession(sessionToken, secret)) {
@@ -39,11 +33,7 @@ function validateProductInput(data: Record<string, string | undefined>): string[
   if (data.imageUrl && !data.imageUrl.startsWith('http')) errors.push('Image URL must start with http');
   if (data.amazonUrl && !data.amazonUrl.startsWith('http')) errors.push('Amazon URL must start with http');
   if (data.affiliateUrl && !data.affiliateUrl.startsWith('http')) errors.push('Affiliate URL must start with http');
-  if (data.amazonUrl && !data.amazonUrl.includes('amazon')) errors.push('Amazon URL must contain amazon');
-  if (data.category && !VALID_CATEGORIES.includes(data.category) && data.category !== 'Uncategorized') {
-    const suggestion = VALID_CATEGORIES.find(c => c.toLowerCase() === data.category!.toLowerCase());
-    if (!suggestion) errors.push(`Invalid category. Use one of: ${VALID_CATEGORIES.join(', ')}`);
-  }
+  if (data.category && data.category.trim().length === 0) errors.push('Category cannot be empty');
   if (data.rating && data.rating.length > 50) errors.push('Rating too long');
   if (data.description && data.description.length > 2000) errors.push('Description exceeds 2000 characters');
   return errors;
