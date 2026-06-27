@@ -94,19 +94,19 @@ const error = Astro.url.searchParams.get('error');
       const data = await res.json();
 
       if (res.ok && !data.error) {
-        btn.textContent = 'Sent!';
-        btn.className = 'px-6 py-3 bg-green-600 text-white rounded-xl text-sm font-medium cursor-default';
-        setTimeout(() => window.location.href = '/contact/?sent=1', 2000);
+        form.innerHTML = `<div class="text-center py-12">
+          <svg class="w-16 h-16 mx-auto mb-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+          <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">Message Sent!</h3>
+          <p class="text-slate-500 dark:text-slate-400">Thanks for reaching out. We'll get back to you within 24 hours.</p>
+        </div>`;
       } else {
         btn.textContent = 'Try Again';
         btn.disabled = false;
-        btn.className = 'px-6 py-3 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors';
         alert(data.error || data.message || 'Failed to send. Please try again.');
       }
     } catch {
       btn.textContent = 'Try Again';
       btn.disabled = false;
-      btn.className = 'px-6 py-3 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors';
       alert('Network error. Please try again.');
     }
   });
