@@ -1,9 +1,12 @@
 ---
+import { env } from 'cloudflare:workers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getProducts } from '../../lib/data';
 
 const { id } = Astro.params;
-const product = getProducts().find(p => p.id === id);
+const db = env.DB;
+const products = await getProducts(db);
+const product = products.find(p => p.id === id);
 if (!product) {
   return Astro.redirect('/products/');
 }

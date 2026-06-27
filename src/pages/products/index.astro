@@ -1,9 +1,11 @@
 ---
+import { env } from 'cloudflare:workers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getProducts } from '../../lib/data';
 
-const allProducts = getProducts();
+const db = env.DB;
+const allProducts = await getProducts(db);
 const categories = [...new Set(allProducts.map(p => p.category))];
 const selectedCategory = Astro.url.searchParams.get('category');
 const products = selectedCategory
