@@ -1,25 +1,39 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 
-export const POST: APIRoute = async ({ request }) => {
+function isAjax(request: Request): boolean {
+  const accept = request.headers.get('accept') || '';
+  return !accept.includes('text/html');
+}
+
+export const GET: APIRoute = ({ redirect }) => redirect('/contact/');
+
+export const POST: APIRoute = async ({ request, redirect }) => {
   try {
     const form = await request.formData();
     const name = form.get('name')?.toString() || 'Anonymous';
     const email = form.get('email')?.toString() || '';
     const message = form.get('message')?.toString() || '';
+    const ajax = isAjax(request);
 
     if (!email || !message) {
-      return new Response(JSON.stringify({ error: 'Email and message are required' }), {
-        status: 400, headers: { 'Content-Type': 'application/json' }
-      });
+      if (ajax) {
+        return new Response(JSON.stringify({ error: 'Email and message are required' }), {
+          status: 400, headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return redirect('/contact/?error=Email+and+message+are+required');
     }
 
     const apiKey = env.RESEND_API_KEY as string;
     if (!apiKey) {
       console.error('RESEND_API_KEY not configured');
-      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
-        status: 500, headers: { 'Content-Type': 'application/json' }
-      });
+      if (ajax) {
+        return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+          status: 500, headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return redirect('/contact/?error=Server+configuration+error');
     }
 
     const res = await fetch('https://api.resend.com/emails', {
@@ -62,11 +76,23 @@ export const POST: APIRoute = async ({ request }) => {
       }),
     });
 
-    const data = await res.json();
-    return new Response(JSON.stringify(data), {
-      status: res.status,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    if (!res.ok) {
+      const data = await res.json();
+      console.error('resend error:', data);
+      if (ajax) {
+        return new Response(JSON.stringify({ error: data.error || data.message || 'Failed to send' }), {
+          status: 500, headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return redirect('/contact/?error=Failed+to+send+message');
+    }
+
+    if (ajax) {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    return redirect('/contact/?sent=1');
   } catch (err) {
     console.error('contact form error:', err);
     return new Response(JSON.stringify({ error: 'Failed to send message' }), {
