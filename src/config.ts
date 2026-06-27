@@ -37,7 +37,7 @@ export const FOOTER_LINKS = [
   {
     title: 'Company',
     links: [
-      { label: 'Contact', href: '/about/' },
+      { label: 'Contact', href: '/contact/' },
       { label: 'Admin Login', href: '/admin/login/' },
     ],
   },
