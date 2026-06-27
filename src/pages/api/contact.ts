@@ -1,19 +1,48 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.formData();
-    body.delete('_captcha');
+    const form = await request.formData();
+    const name = form.get('name')?.toString() || 'Anonymous';
+    const email = form.get('email')?.toString() || '';
+    const message = form.get('message')?.toString() || '';
 
-    const response = await fetch('https://formsubmit.co/ajax/ghodke.mangesh2@gmail.com', {
+    if (!email || !message) {
+      return new Response(JSON.stringify({ error: 'Email and message are required' }), {
+        status: 400, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const apiKey = env.RESEND_API_KEY as string;
+    if (!apiKey) {
+      console.error('RESEND_API_KEY not configured');
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      body,
-      headers: { 'Accept': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'SoftBuyDeals <onboarding@resend.dev>',
+        to: 'ghodke.mangesh2@gmail.com',
+        reply_to: email,
+        subject: `Contact form: ${name}`,
+        html: `<p><strong>Name:</strong> ${name}</p>
+<p><strong>Email:</strong> ${email}</p>
+<p><strong>Message:</strong></p>
+<p>${message.replace(/\n/g, '<br>')}</p>`,
+      }),
     });
 
-    const data = await response.json();
+    const data = await res.json();
     return new Response(JSON.stringify(data), {
-      status: response.status,
+      status: res.status,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (err) {
