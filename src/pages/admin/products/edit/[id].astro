@@ -5,13 +5,16 @@ import { getProducts } from '../../../../lib/data';
 import { getCsrfToken } from '../../../../lib/session';
 
 const { id } = Astro.params;
-const product = getProducts().find(p => p.id === id);
+const db = Astro.locals.runtime.env.DB as any;
+const products = await getProducts(db);
+const product = products.find(p => p.id === id);
 if (!product) {
   return Astro.redirect('/admin/dashboard/');
 }
 
+const secret = Astro.locals.runtime.env.SESSION_SECRET as string;
 const sessionToken = Astro.cookies.get('session')?.value || '';
-const csrfToken = sessionToken ? getCsrfToken(sessionToken) : '';
+const csrfToken = sessionToken ? getCsrfToken(sessionToken, secret) : '';
 const error = Astro.url.searchParams.get('error');
 
 const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';

@@ -1,44 +1,12 @@
 import type { APIRoute } from 'astro';
 import { createSession } from '../../lib/session';
 import { scryptSync, timingSafeEqual } from 'node:crypto';
+import { checkRateLimit, getAccountLockout, recordFailedAttempt, clearAccountLockout } from '../../lib/rate-limit';
 
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
 const RATE_LIMIT_MAX = 5;
 const ACCOUNT_LOCKOUT_MAX = 10;
-const loginAttempts = new Map<string, { count: number; resetAt: number }>();
-const accountLockouts = new Map<string, { count: number; lockedUntil: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = loginAttempts.get(ip);
-  if (!entry || now > entry.resetAt) {
-    loginAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return false;
-  }
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
-}
-
-function isAccountLocked(email: string): boolean {
-  const now = Date.now();
-  const lockout = accountLockouts.get(email);
-  if (!lockout) return false;
-  if (now > lockout.lockedUntil) {
-    accountLockouts.delete(email);
-    return false;
-  }
-  return true;
-}
-
-function recordFailedAttempt(email: string): void {
-  const now = Date.now();
-  const lockout = accountLockouts.get(email) || { count: 0, lockedUntil: 0 };
-  lockout.count++;
-  if (lockout.count >= ACCOUNT_LOCKOUT_MAX) {
-    lockout.lockedUntil = now + 30 * 60 * 1000;
-  }
-  accountLockouts.set(email, lockout);
-}
+const ACCOUNT_LOCKOUT_DURATION = 30 * 60 * 1000;
 
 function verifyPassword(password: string, hashEnv: string): boolean {
   const parts = hashEnv.split(':');
@@ -48,10 +16,12 @@ function verifyPassword(password: string, hashEnv: string): boolean {
   return timingSafeEqual(Buffer.from(derivedHash), Buffer.from(storedHash));
 }
 
-export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress }) => {
+export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress, locals }) => {
+  const db = (locals.runtime.env as any).DB;
   const ip = clientAddress || request.headers.get('x-forwarded-for') || 'unknown';
 
-  if (isRateLimited(ip)) {
+  const limited = await checkRateLimit(db, `login:ip:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW);
+  if (limited) {
     return new Response(null, {
       status: 429,
       headers: { 'Retry-After': '900' },
@@ -66,31 +36,30 @@ export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress
     return redirect('/admin/login/?error=Email and password are required');
   }
 
-  if (isAccountLocked(email)) {
+  const { locked: accountLocked } = await getAccountLockout(db, email);
+  if (accountLocked) {
     return redirect('/admin/login/?error=Account temporarily locked. Try again later.');
   }
 
-  const adminEmail = import.meta.env.ADMIN_EMAIL;
-  const adminPasswordHash = import.meta.env.ADMIN_PASSWORD_HASH;
+  const adminEmail = locals.runtime.env.ADMIN_EMAIL as string;
+  const adminPasswordHash = locals.runtime.env.ADMIN_PASSWORD_HASH as string;
+  const secret = locals.runtime.env.SESSION_SECRET as string;
 
   if (!adminEmail || !adminPasswordHash) {
     console.error('ADMIN_EMAIL or ADMIN_PASSWORD_HASH not configured');
     return redirect('/admin/login/?error=Server configuration error');
   }
 
-  if (email !== adminEmail) {
-    recordFailedAttempt(email);
+  const isInvalid = email !== adminEmail || !verifyPassword(password, adminPasswordHash);
+
+  if (isInvalid) {
+    await recordFailedAttempt(db, email, ACCOUNT_LOCKOUT_MAX, ACCOUNT_LOCKOUT_DURATION);
     return redirect('/admin/login/?error=Invalid credentials');
   }
 
-  if (!verifyPassword(password, adminPasswordHash)) {
-    recordFailedAttempt(email);
-    return redirect('/admin/login/?error=Invalid credentials');
-  }
+  await clearAccountLockout(db, email);
 
-  accountLockouts.delete(email);
-
-  const token = createSession(email);
+  const token = createSession(email, secret);
   cookies.set('session', token, {
     path: '/',
     httpOnly: true,

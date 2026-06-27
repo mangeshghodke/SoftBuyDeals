@@ -1,16 +1,18 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getProducts } from '../../lib/data';
-import { getCsrfToken, validateSession } from '../../lib/session';
+import { getCsrfToken } from '../../lib/session';
 
-const products = getProducts();
+const db = Astro.locals.runtime.env.DB as any;
+const products = await getProducts(db);
 const stats = {
   total: products.length,
   categories: [...new Set(products.map(p => p.category))].length,
 };
 
+const secret = Astro.locals.runtime.env.SESSION_SECRET as string;
 const sessionToken = Astro.cookies.get('session')?.value || '';
-const csrfToken = sessionToken ? getCsrfToken(sessionToken) : '';
+const csrfToken = sessionToken ? getCsrfToken(sessionToken, secret) : '';
 ---
 
 <BaseLayout title="Admin Dashboard">
@@ -125,9 +127,9 @@ const csrfToken = sessionToken ? getCsrfToken(sessionToken) : '';
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
                         </a>
                         <button
+                          data-id={product.id}
                           data-csrf={csrfToken}
-                          onclick={`if(confirm('Delete this product?')){fetch('/api/products/?id=${product.id}',{method:'DELETE',headers:{'x-csrf-token':'${csrfToken}'}}).then(()=>location.reload())}`}
-                          class="p-2 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                          class="delete-btn p-2 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
                           title="Delete"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
@@ -144,3 +146,18 @@ const csrfToken = sessionToken ? getCsrfToken(sessionToken) : '';
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-btn');
+    if (!btn) return;
+    const id = btn.getAttribute('data-id');
+    const csrf = btn.getAttribute('data-csrf');
+    if (confirm('Delete this product?')) {
+      fetch(`/api/products/?id=${id}`, {
+        method: 'DELETE',
+        headers: { 'x-csrf-token': csrf }
+      }).then(() => location.reload());
+    }
+  });
+</script>

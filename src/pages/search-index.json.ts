@@ -1,9 +1,11 @@
+import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { getProducts } from '../lib/db';
 
-export async function GET() {
+export const GET: APIRoute = async ({ locals }) => {
+  const db = (locals.runtime.env as any).DB;
   const blog = await getCollection('blog');
-  const products = getProducts();
+  const products = await getProducts(db);
 
   const searchIndex = [
     ...blog.map(post => ({
@@ -27,4 +29,4 @@ export async function GET() {
   return new Response(JSON.stringify(searchIndex), {
     headers: { 'Content-Type': 'application/json' }
   });
-}
+};

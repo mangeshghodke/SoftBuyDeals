@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import { passthroughImageService } from 'astro/config';
 import mdx from '@astrojs/mdx';
-import node from '@astrojs/node';
+import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   site: 'https://softbuydeals.com',
@@ -11,7 +11,7 @@ export default defineConfig({
   trailingSlash: 'always',
 
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter: cloudflare(),
 
   build: {
     inlineStylesheets: 'always'

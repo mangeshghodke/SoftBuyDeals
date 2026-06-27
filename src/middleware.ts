@@ -22,8 +22,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route));
 
   if (isAdminRoute) {
+    const secret = context.locals.runtime.env.SESSION_SECRET as string;
     const sessionToken = context.cookies.get('session')?.value;
-    if (!sessionToken || !validateSession(sessionToken)) {
+    if (!sessionToken || !validateSession(sessionToken, secret)) {
       return context.redirect('/admin/login/');
     }
   }

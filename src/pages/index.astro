@@ -3,7 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { getProducts } from '../lib/data';
 
-const products = getProducts();
+const db = Astro.locals.runtime.env.DB as any;
+const products = await getProducts(db);
 const featuredProducts = products.slice(0, 4);
 const categories = [...new Set(products.map(p => p.category))];
 ---

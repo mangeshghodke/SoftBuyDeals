@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: softbuydeals
+    runtime: node
+    region: singapore
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: DB_DIR
+        value: /data
+      - key: NODE_ENV
+        value: production
+    disks:
+      - name: sqlite-data
+        mountPath: /data
+        sizeGB: 1

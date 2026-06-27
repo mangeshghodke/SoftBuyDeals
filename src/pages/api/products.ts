@@ -22,9 +22,9 @@ const VALID_CATEGORIES = [
   'Health', 'Office', 'Music', 'Uncategorized',
 ];
 
-function checkAuth(cookies: any): { authed: boolean; token?: string } {
+function checkAuth(cookies: any, secret: string): { authed: boolean; token?: string } {
   const sessionToken = cookies.get('session')?.value;
-  if (!sessionToken || !validateSession(sessionToken)) {
+  if (!sessionToken || !validateSession(sessionToken, secret)) {
     return { authed: false };
   }
   return { authed: true, token: sessionToken };
@@ -48,10 +48,11 @@ function validateProductInput(data: Record<string, string | undefined>): string[
   return errors;
 }
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, locals }) => {
+  const db = (locals.runtime.env as any).DB;
   const singleId = url.searchParams.get('id');
   if (singleId) {
-    const product = getProductById(singleId);
+    const product = await getProductById(db, singleId);
     if (!product) {
       return new Response(JSON.stringify({ error: 'Product not found' }), {
         status: 404, headers: { 'Content-Type': 'application/json' }
@@ -62,21 +63,23 @@ export const GET: APIRoute = async ({ url }) => {
     });
   }
 
-  const products = getProducts();
+  const products = await getProducts(db);
   return new Response(JSON.stringify({ products }), {
     status: 200, headers: { 'Content-Type': 'application/json' }
   });
 };
 
-export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-  const { authed, token } = checkAuth(cookies);
+export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => {
+  const db = (locals.runtime.env as any).DB;
+  const secret = locals.runtime.env.SESSION_SECRET as string;
+  const { authed, token } = checkAuth(cookies, secret);
   if (!authed) return redirect('/admin/login/');
 
   const formData = await request.formData();
   const isJson = request.headers.get('Accept') === 'application/json';
 
   const csrfToken = formData.get('_csrf')?.toString();
-  if (!csrfToken || !validateCsrfToken(csrfToken, token!)) {
+  if (!csrfToken || !validateCsrfToken(csrfToken, token!, secret)) {
     if (isJson) {
       return new Response(JSON.stringify({ error: 'Invalid CSRF token' }), {
         status: 403, headers: { 'Content-Type': 'application/json' }
@@ -112,7 +115,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   }
 
   if (existingId) {
-    const existing = getProductById(existingId);
+    const existing = await getProductById(db, existingId);
     if (!existing) {
       if (isJson) {
         return new Response(JSON.stringify({ error: 'Product not found' }), {
@@ -126,7 +129,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category'] as const) {
       if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
     }
-    updateProduct(existingId, updated);
+    await updateProduct(db, existingId, updated);
 
     if (isJson) {
       return new Response(JSON.stringify({ ...existing, ...updated }), {
@@ -150,7 +153,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     createdAt: new Date().toISOString(),
   };
 
-  createProduct(newProduct);
+  await createProduct(db, newProduct);
 
   if (isJson) {
     return new Response(JSON.stringify(newProduct), {
@@ -160,15 +163,17 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   return redirect('/admin/dashboard/');
 };
 
-export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
-  const { authed, token } = checkAuth(cookies);
+export const PUT: APIRoute = async ({ request, cookies, redirect, locals }) => {
+  const db = (locals.runtime.env as any).DB;
+  const secret = locals.runtime.env.SESSION_SECRET as string;
+  const { authed, token } = checkAuth(cookies, secret);
   if (!authed) return redirect('/admin/login/');
 
   const formData = await request.formData();
   const isJson = request.headers.get('Accept') === 'application/json';
 
   const csrfToken = formData.get('_csrf')?.toString();
-  if (!csrfToken || !validateCsrfToken(csrfToken, token!)) {
+  if (!csrfToken || !validateCsrfToken(csrfToken, token!, secret)) {
     if (isJson) {
       return new Response(JSON.stringify({ error: 'Invalid CSRF token' }), {
         status: 403, headers: { 'Content-Type': 'application/json' }
@@ -187,7 +192,7 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
     return redirect('/admin/dashboard/?error=Product+ID+required');
   }
 
-  const existing = getProductById(id);
+  const existing = await getProductById(db, id);
   if (!existing) {
     if (isJson) {
       return new Response(JSON.stringify({ error: 'Product not found' }), {
@@ -225,7 +230,7 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
   for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category'] as const) {
     if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
   }
-  updateProduct(id, updated);
+  await updateProduct(db, id, updated);
 
   if (isJson) {
     return new Response(JSON.stringify({ ...existing, ...updated }), {
@@ -235,8 +240,10 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
   return redirect('/admin/dashboard/');
 };
 
-export const DELETE: APIRoute = async ({ request, cookies }) => {
-  const { authed, token } = checkAuth(cookies);
+export const DELETE: APIRoute = async ({ request, cookies, locals }) => {
+  const db = (locals.runtime.env as any).DB;
+  const secret = locals.runtime.env.SESSION_SECRET as string;
+  const { authed, token } = checkAuth(cookies, secret);
   if (!authed) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { 'Content-Type': 'application/json' }
@@ -244,7 +251,7 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
   }
 
   const csrfToken = request.headers.get('x-csrf-token');
-  if (!csrfToken || !validateCsrfToken(csrfToken, token!)) {
+  if (!csrfToken || !validateCsrfToken(csrfToken, token!, secret)) {
     return new Response(JSON.stringify({ error: 'Invalid CSRF token' }), {
       status: 403, headers: { 'Content-Type': 'application/json' }
     });
@@ -258,7 +265,7 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
     });
   }
 
-  deleteProduct(id);
+  await deleteProduct(db, id);
   return new Response(JSON.stringify({ success: true }), {
     status: 200, headers: { 'Content-Type': 'application/json' }
   });

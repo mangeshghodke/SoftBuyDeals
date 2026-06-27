@@ -1,21 +1,7 @@
 import type { APIRoute } from 'astro';
 import * as cheerio from 'cheerio';
 import { validateSession } from '../../lib/session';
-
-const RATE_LIMIT_WINDOW = 60 * 1000;
-const RATE_LIMIT_MAX = 10;
-const requestCounts = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = requestCounts.get(ip);
-  if (!entry || now > entry.resetAt) {
-    requestCounts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return false;
-  }
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
-}
+import { checkRateLimit } from '../../lib/rate-limit';
 
 function extractAmazonProductId(url: string): string | null {
   const patterns = [
@@ -76,10 +62,12 @@ async function fetchWithRetry(url: string, retries = 2): Promise<string | null> 
   return null;
 }
 
-export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
+export const POST: APIRoute = async ({ request, cookies, clientAddress, locals }) => {
+  const db = (locals.runtime.env as any).DB;
   const ip = clientAddress || request.headers.get('x-forwarded-for') || 'unknown';
 
-  if (isRateLimited(ip)) {
+  const limited = await checkRateLimit(db, `fetch:${ip}`, 10, 60000);
+  if (limited) {
     return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
       status: 429,
       headers: { 'Content-Type': 'application/json', 'Retry-After': '60' }
@@ -87,7 +75,8 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
   }
 
   const sessionToken = cookies.get('session')?.value;
-  if (!sessionToken || !validateSession(sessionToken)) {
+  const secret = locals.runtime.env.SESSION_SECRET as string;
+  if (!sessionToken || !validateSession(sessionToken, secret)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' }
