@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import * as cheerio from 'cheerio';
 import { validateSession } from '../../lib/session';
 import { checkRateLimit } from '../../lib/rate-limit';
@@ -62,8 +63,8 @@ async function fetchWithRetry(url: string, retries = 2): Promise<string | null> 
   return null;
 }
 
-export const POST: APIRoute = async ({ request, cookies, clientAddress, locals }) => {
-  const db = (locals.runtime.env as any).DB;
+export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
+  const db = env.DB;
   const ip = clientAddress || request.headers.get('x-forwarded-for') || 'unknown';
 
   const limited = await checkRateLimit(db, `fetch:${ip}`, 10, 60000);
@@ -75,7 +76,7 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress, locals }
   }
 
   const sessionToken = cookies.get('session')?.value;
-  const secret = locals.runtime.env.SESSION_SECRET as string;
+  const secret = env.SESSION_SECRET as string;
   if (!sessionToken || !validateSession(sessionToken, secret)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,

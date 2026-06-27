@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { validateSession, validateCsrfToken } from '../../lib/session';
 import { getProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../../lib/data';
 import type { Product } from '../../lib/data';
@@ -48,8 +49,8 @@ function validateProductInput(data: Record<string, string | undefined>): string[
   return errors;
 }
 
-export const GET: APIRoute = async ({ url, locals }) => {
-  const db = (locals.runtime.env as any).DB;
+export const GET: APIRoute = async ({ url }) => {
+  const db = env.DB;
   const singleId = url.searchParams.get('id');
   if (singleId) {
     const product = await getProductById(db, singleId);
@@ -69,9 +70,9 @@ export const GET: APIRoute = async ({ url, locals }) => {
   });
 };
 
-export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => {
-  const db = (locals.runtime.env as any).DB;
-  const secret = locals.runtime.env.SESSION_SECRET as string;
+export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+  const db = env.DB;
+  const secret = env.SESSION_SECRET as string;
   const { authed, token } = checkAuth(cookies, secret);
   if (!authed) return redirect('/admin/login/');
 
@@ -163,9 +164,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
   return redirect('/admin/dashboard/');
 };
 
-export const PUT: APIRoute = async ({ request, cookies, redirect, locals }) => {
-  const db = (locals.runtime.env as any).DB;
-  const secret = locals.runtime.env.SESSION_SECRET as string;
+export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
+  const db = env.DB;
+  const secret = env.SESSION_SECRET as string;
   const { authed, token } = checkAuth(cookies, secret);
   if (!authed) return redirect('/admin/login/');
 
@@ -240,9 +241,9 @@ export const PUT: APIRoute = async ({ request, cookies, redirect, locals }) => {
   return redirect('/admin/dashboard/');
 };
 
-export const DELETE: APIRoute = async ({ request, cookies, locals }) => {
-  const db = (locals.runtime.env as any).DB;
-  const secret = locals.runtime.env.SESSION_SECRET as string;
+export const DELETE: APIRoute = async ({ request, cookies }) => {
+  const db = env.DB;
+  const secret = env.SESSION_SECRET as string;
   const { authed, token } = checkAuth(cookies, secret);
   if (!authed) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {

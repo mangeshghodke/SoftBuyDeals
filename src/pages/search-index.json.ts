@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { getCollection } from 'astro:content';
 import { getProducts } from '../lib/db';
 
-export const GET: APIRoute = async ({ locals }) => {
-  const db = (locals.runtime.env as any).DB;
+export const GET: APIRoute = async () => {
+  const db = env.DB;
   const blog = await getCollection('blog');
   const products = await getProducts(db);
 

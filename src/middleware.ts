@@ -1,4 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
+import { env } from 'cloudflare:workers';
 import { validateSession } from './lib/session';
 
 const ADMIN_ROUTES = ['/admin/dashboard', '/admin/products'];
@@ -22,7 +23,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route));
 
   if (isAdminRoute) {
-    const secret = context.locals.runtime.env.SESSION_SECRET as string;
+    const secret = env.SESSION_SECRET as string;
     const sessionToken = context.cookies.get('session')?.value;
     if (!sessionToken || !validateSession(sessionToken, secret)) {
       return context.redirect('/admin/login/');

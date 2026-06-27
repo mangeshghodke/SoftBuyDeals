@@ -1,9 +1,10 @@
 ---
+import { env } from 'cloudflare:workers';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Button from '../../../components/Button.astro';
 import { getCsrfToken } from '../../../lib/session';
 
-const secret = Astro.locals.runtime.env.SESSION_SECRET as string;
+const secret = env.SESSION_SECRET as string;
 const sessionToken = Astro.cookies.get('session')?.value || '';
 const csrfToken = sessionToken ? getCsrfToken(sessionToken, secret) : '';
 const error = Astro.url.searchParams.get('error');

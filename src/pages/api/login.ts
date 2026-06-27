@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { createSession } from '../../lib/session';
 import { scryptSync, timingSafeEqual } from 'node:crypto';
 import { checkRateLimit, getAccountLockout, recordFailedAttempt, clearAccountLockout } from '../../lib/rate-limit';
@@ -16,8 +17,8 @@ function verifyPassword(password: string, hashEnv: string): boolean {
   return timingSafeEqual(Buffer.from(derivedHash), Buffer.from(storedHash));
 }
 
-export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress, locals }) => {
-  const db = (locals.runtime.env as any).DB;
+export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress }) => {
+  const db = env.DB;
   const ip = clientAddress || request.headers.get('x-forwarded-for') || 'unknown';
 
   const limited = await checkRateLimit(db, `login:ip:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW);
@@ -41,9 +42,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress
     return redirect('/admin/login/?error=Account temporarily locked. Try again later.');
   }
 
-  const adminEmail = locals.runtime.env.ADMIN_EMAIL as string;
-  const adminPasswordHash = locals.runtime.env.ADMIN_PASSWORD_HASH as string;
-  const secret = locals.runtime.env.SESSION_SECRET as string;
+  const adminEmail = env.ADMIN_EMAIL as string;
+  const adminPasswordHash = env.ADMIN_PASSWORD_HASH as string;
+  const secret = env.SESSION_SECRET as string;
 
   if (!adminEmail || !adminPasswordHash) {
     console.error('ADMIN_EMAIL or ADMIN_PASSWORD_HASH not configured');
