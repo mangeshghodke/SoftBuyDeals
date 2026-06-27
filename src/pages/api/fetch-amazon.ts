@@ -1,5 +1,21 @@
 import type { APIRoute } from 'astro';
 import * as cheerio from 'cheerio';
+import { validateSession } from '../../lib/session';
+
+const RATE_LIMIT_WINDOW = 60 * 1000;
+const RATE_LIMIT_MAX = 10;
+const requestCounts = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = requestCounts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    requestCounts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
 
 function extractAmazonProductId(url: string): string | null {
   const patterns = [
@@ -60,7 +76,24 @@ async function fetchWithRetry(url: string, retries = 2): Promise<string | null> 
   return null;
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
+  const ip = clientAddress || request.headers.get('x-forwarded-for') || 'unknown';
+
+  if (isRateLimited(ip)) {
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json', 'Retry-After': '60' }
+    });
+  }
+
+  const sessionToken = cookies.get('session')?.value;
+  if (!sessionToken || !validateSession(sessionToken)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   try {
     const body = await request.json();
     const { url } = body;
@@ -151,10 +184,10 @@ export const POST: APIRoute = async ({ request }) => {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error) {
+  } catch {
+    console.error('fetch-amazon failed');
     return new Response(JSON.stringify({
       error: 'Failed to fetch product details from Amazon',
-      details: error instanceof Error ? error.message : String(error),
       notice: 'Amazon blocks automated requests. Please fill in the product details manually.',
     }), {
       status: 200,

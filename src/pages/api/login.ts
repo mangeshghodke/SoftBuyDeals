@@ -1,10 +1,12 @@
 import type { APIRoute } from 'astro';
 import { createSession } from '../../lib/session';
-import { timingSafeEqual } from 'node:crypto';
+import { scryptSync, timingSafeEqual } from 'node:crypto';
 
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
 const RATE_LIMIT_MAX = 5;
+const ACCOUNT_LOCKOUT_MAX = 10;
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const accountLockouts = new Map<string, { count: number; lockedUntil: number }>();
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
@@ -15,6 +17,35 @@ function isRateLimited(ip: string): boolean {
   }
   entry.count++;
   return entry.count > RATE_LIMIT_MAX;
+}
+
+function isAccountLocked(email: string): boolean {
+  const now = Date.now();
+  const lockout = accountLockouts.get(email);
+  if (!lockout) return false;
+  if (now > lockout.lockedUntil) {
+    accountLockouts.delete(email);
+    return false;
+  }
+  return true;
+}
+
+function recordFailedAttempt(email: string): void {
+  const now = Date.now();
+  const lockout = accountLockouts.get(email) || { count: 0, lockedUntil: 0 };
+  lockout.count++;
+  if (lockout.count >= ACCOUNT_LOCKOUT_MAX) {
+    lockout.lockedUntil = now + 30 * 60 * 1000;
+  }
+  accountLockouts.set(email, lockout);
+}
+
+function verifyPassword(password: string, hashEnv: string): boolean {
+  const parts = hashEnv.split(':');
+  if (parts.length !== 3 || parts[0] !== 'scrypt') return false;
+  const [, salt, storedHash] = parts;
+  const derivedHash = scryptSync(password, salt, 64).toString('hex');
+  return timingSafeEqual(Buffer.from(derivedHash), Buffer.from(storedHash));
 }
 
 export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress }) => {
@@ -35,13 +66,29 @@ export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress
     return redirect('/admin/login/?error=Email and password are required');
   }
 
-  const adminEmail = import.meta.env.ADMIN_EMAIL || 'admin@softbuydeals.com';
-  const adminPassword = import.meta.env.ADMIN_PASSWORD || 'admin123';
+  if (isAccountLocked(email)) {
+    return redirect('/admin/login/?error=Account temporarily locked. Try again later.');
+  }
 
-  if (email !== adminEmail) return redirect('/admin/login/?error=Invalid credentials');
+  const adminEmail = import.meta.env.ADMIN_EMAIL;
+  const adminPasswordHash = import.meta.env.ADMIN_PASSWORD_HASH;
 
-  const passwordMatch = constantTimeCompare(password, adminPassword);
-  if (!passwordMatch) return redirect('/admin/login/?error=Invalid credentials');
+  if (!adminEmail || !adminPasswordHash) {
+    console.error('ADMIN_EMAIL or ADMIN_PASSWORD_HASH not configured');
+    return redirect('/admin/login/?error=Server configuration error');
+  }
+
+  if (email !== adminEmail) {
+    recordFailedAttempt(email);
+    return redirect('/admin/login/?error=Invalid credentials');
+  }
+
+  if (!verifyPassword(password, adminPasswordHash)) {
+    recordFailedAttempt(email);
+    return redirect('/admin/login/?error=Invalid credentials');
+  }
+
+  accountLockouts.delete(email);
 
   const token = createSession(email);
   cookies.set('session', token, {
@@ -54,14 +101,3 @@ export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress
 
   return redirect('/admin/dashboard/');
 };
-
-function constantTimeCompare(a: string, b: string): boolean {
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) return false;
-  try {
-    return timingSafeEqual(bufA, bufB);
-  } catch {
-    return false;
-  }
-}

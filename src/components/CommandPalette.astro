@@ -151,42 +151,77 @@ import { resolvePath } from '../utils/navigation';
     function renderResults(matches) {
       helpState.classList.add('hidden');
       resultsList.classList.remove('hidden');
-      
+      resultsList.innerHTML = '';
+
       if (matches.length === 0) {
-        resultsList.innerHTML = `
-          <li class="px-4 py-14 text-center sm:px-14">
-            <p class="text-sm text-slate-500">No results found for that query.</p>
-          </li>
-        `;
+        const li = document.createElement('li');
+        li.className = 'px-4 py-14 text-center sm:px-14';
+        const p = document.createElement('p');
+        p.className = 'text-sm text-slate-500';
+        p.textContent = 'No results found for that query.';
+        li.appendChild(p);
+        resultsList.appendChild(li);
         return;
       }
 
-      resultsList.innerHTML = matches.map((item, idx) => {
+      for (const item of matches) {
         const href = item.url || `${resolvePath}${item.slug.startsWith('/') ? item.slug.slice(1) : item.slug}`;
         const icon = item.type === 'Product' ? 'P' : item.type.charAt(0);
 
-        return `
-        <li
-          class="group cursor-pointer select-none rounded-xl p-3 hover:bg-primary-600 dark:hover:bg-primary-500 transition-colors"
-          role="option"
-          tabindex="-1"
-          data-href="${href}"
-        >
-          <a href="${href}" class="flex items-center">
-            <div class="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-white/20 overflow-hidden">
-              ${item.image && item.type === 'Product'
-                ? `<img src="${item.image}" alt="" class="w-full h-full object-contain p-1" />`
-                : `<span class="text-xs font-bold text-slate-500 dark:text-slate-400 group-hover:text-white uppercase">${icon}</span>`
-              }
-            </div>
-            <div class="ml-4 flex-auto min-w-0">
-              <p class="text-sm font-medium text-slate-900 dark:text-white group-hover:text-white truncate">${item.title}</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-primary-100 line-clamp-1">${item.type === 'Product' ? (item.category ? `[${item.category}] ` : '') + (item.description || '') : item.description}</p>
-            </div>
-            ${item.type === 'Product' ? '<svg class="ml-2 w-4 h-4 flex-shrink-0 text-slate-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>' : ''}
-          </a>
-        </li>`;
-      }).join('');
+        const li = document.createElement('li');
+        li.className = 'group cursor-pointer select-none rounded-xl p-3 hover:bg-primary-600 dark:hover:bg-primary-500 transition-colors';
+        li.setAttribute('role', 'option');
+        li.tabIndex = -1;
+        li.dataset.href = href;
+
+        const a = document.createElement('a');
+        a.href = href;
+        a.className = 'flex items-center';
+
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-white/20 overflow-hidden';
+
+        if (item.image && item.type === 'Product') {
+          const img = document.createElement('img');
+          img.src = item.image;
+          img.alt = '';
+          img.className = 'w-full h-full object-contain p-1';
+          iconDiv.appendChild(img);
+        } else {
+          const span = document.createElement('span');
+          span.className = 'text-xs font-bold text-slate-500 dark:text-slate-400 group-hover:text-white uppercase';
+          span.textContent = icon;
+          iconDiv.appendChild(span);
+        }
+        a.appendChild(iconDiv);
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'ml-4 flex-auto min-w-0';
+
+        const titleP = document.createElement('p');
+        titleP.className = 'text-sm font-medium text-slate-900 dark:text-white group-hover:text-white truncate';
+        titleP.textContent = item.title;
+        textDiv.appendChild(titleP);
+
+        const descP = document.createElement('p');
+        descP.className = 'text-xs text-slate-500 dark:text-slate-400 group-hover:text-primary-100 line-clamp-1';
+        if (item.type === 'Product') {
+          descP.textContent = (item.category ? `[${item.category}] ` : '') + (item.description || '');
+        } else {
+          descP.textContent = item.description || '';
+        }
+        textDiv.appendChild(descP);
+        a.appendChild(textDiv);
+
+        if (item.type === 'Product') {
+          const svgSpan = document.createElement('span');
+          svgSpan.innerHTML = '<svg class="ml-2 w-4 h-4 flex-shrink-0 text-slate-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>';
+          a.appendChild(svgSpan);
+        }
+
+        li.appendChild(a);
+        resultsList.appendChild(li);
+      }
     }
   }
 

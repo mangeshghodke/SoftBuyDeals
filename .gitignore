@@ -18,6 +18,9 @@ playwright-report/
 test-results/
 
 
+# database
+data/
+
 # environment variables
 .env
 .env.production
@@ -27,4 +30,4 @@ test-results/
 
 # jetbrains setting folder
 .idea/
-.sessions
+.sessions/

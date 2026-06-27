@@ -39,6 +39,7 @@
     "@fontsource-variable/space-grotesk": "^5.2.10",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.3",
+    "better-sqlite3": "^12.11.1",
     "cheerio": "^1.2.0",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0"
@@ -46,6 +47,7 @@
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@tailwindcss/typography": "^0.5.19",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.0.1"
   }
 }

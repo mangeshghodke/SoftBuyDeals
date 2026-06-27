@@ -1,6 +1,11 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Button from '../../../components/Button.astro';
+import { getCsrfToken } from '../../../lib/session';
+
+const sessionToken = Astro.cookies.get('session')?.value || '';
+const csrfToken = sessionToken ? getCsrfToken(sessionToken) : '';
+const error = Astro.url.searchParams.get('error');
 ---
 
 <BaseLayout title="Add Product">
@@ -12,7 +17,14 @@ import Button from '../../../components/Button.astro';
         <p class="text-slate-500 dark:text-slate-400 mt-1">Fill in the product details below.</p>
       </div>
 
+      {error && (
+        <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
+          {error}
+        </div>
+      )}
+
       <form method="POST" action="/api/products/" class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6">
+        <input type="hidden" name="_csrf" value={csrfToken} />
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="md:col-span-2">
             <label for="title" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Product Title</label>
@@ -40,10 +52,13 @@ import Button from '../../../components/Button.astro';
 
           <div>
             <label for="rating" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Rating</label>
-            <input id="rating" name="rating" type="text"
-              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              placeholder="4.5 out of 5 stars"
-            />
+            <div class="flex items-center gap-2">
+              <input id="rating" name="rating" type="number" min="0" max="5" step="0.1"
+                class="w-24 rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                placeholder="4.5"
+              />
+              <span class="text-sm text-slate-500 dark:text-slate-400">out of 5.0</span>
+            </div>
           </div>
 
           <div>

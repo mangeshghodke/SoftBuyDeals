@@ -1,52 +1,57 @@
 import type { APIRoute } from 'astro';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { validateSession } from '../../lib/session';
+import { validateSession, validateCsrfToken } from '../../lib/session';
+import { getProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../../lib/data';
+import type { Product } from '../../lib/data';
 
-const DATA_FILE = 'src/data/products.json';
-
-interface Product {
-  id: string;
-  title: string;
-  price: string;
-  originalPrice: string;
-  imageUrl: string;
-  amazonUrl: string;
-  affiliateUrl: string;
-  description: string;
-  rating: string;
-  category: string;
-  createdAt: string;
+function isFormSubmit(request: Request): boolean {
+  return request.headers.get('Accept') !== 'application/json';
 }
 
-function getProducts(): Product[] {
-  try {
-    if (!existsSync(DATA_FILE)) {
-      writeFileSync(DATA_FILE, '{"products":[]}');
-      return [];
-    }
-    const data = JSON.parse(readFileSync(DATA_FILE, 'utf-8'));
-    return data.products || [];
-  } catch {
-    return [];
+function formatRating(rating: string | undefined): string | undefined {
+  if (!rating) return rating;
+  const num = parseFloat(rating);
+  if (!isNaN(num) && rating === num.toString()) {
+    return `${num} out of 5.0`;
   }
+  return rating;
 }
 
-function saveProducts(products: Product[]): void {
-  writeFileSync(DATA_FILE, JSON.stringify({ products }, null, 2));
-}
+const VALID_CATEGORIES = [
+  'Electronics', 'Home & Kitchen', 'Books', 'Fashion',
+  'Beauty', 'Sports', 'Toys', 'Automotive', 'Groceries',
+  'Health', 'Office', 'Music', 'Uncategorized',
+];
 
-function checkAuth(cookies: any): boolean {
+function checkAuth(cookies: any): { authed: boolean; token?: string } {
   const sessionToken = cookies.get('session')?.value;
-  return !!sessionToken && !!validateSession(sessionToken);
+  if (!sessionToken || !validateSession(sessionToken)) {
+    return { authed: false };
+  }
+  return { authed: true, token: sessionToken };
 }
 
-export const GET: APIRoute = async ({ url, cookies }) => {
-  const isAdmin = checkAuth(cookies);
-  const products = getProducts();
+function validateProductInput(data: Record<string, string | undefined>): string[] {
+  const errors: string[] = [];
+  if (data.title && data.title.length > 200) errors.push('Title exceeds 200 characters');
+  if (data.title && data.title.trim().length === 0) errors.push('Title cannot be empty');
+  if (data.price && !/^[₹$]?\s?[\d,]+(\.\d{1,2})?\s?$/.test(data.price.trim())) errors.push('Invalid price format');
+  if (data.imageUrl && !data.imageUrl.startsWith('http')) errors.push('Image URL must start with http');
+  if (data.amazonUrl && !data.amazonUrl.startsWith('http')) errors.push('Amazon URL must start with http');
+  if (data.affiliateUrl && !data.affiliateUrl.startsWith('http')) errors.push('Affiliate URL must start with http');
+  if (data.amazonUrl && !data.amazonUrl.includes('amazon')) errors.push('Amazon URL must contain amazon');
+  if (data.category && !VALID_CATEGORIES.includes(data.category) && data.category !== 'Uncategorized') {
+    const suggestion = VALID_CATEGORIES.find(c => c.toLowerCase() === data.category!.toLowerCase());
+    if (!suggestion) errors.push(`Invalid category. Use one of: ${VALID_CATEGORIES.join(', ')}`);
+  }
+  if (data.rating && data.rating.length > 50) errors.push('Rating too long');
+  if (data.description && data.description.length > 2000) errors.push('Description exceeds 2000 characters');
+  return errors;
+}
 
+export const GET: APIRoute = async ({ url }) => {
   const singleId = url.searchParams.get('id');
   if (singleId) {
-    const product = products.find(p => p.id === singleId);
+    const product = getProductById(singleId);
     if (!product) {
       return new Response(JSON.stringify({ error: 'Product not found' }), {
         status: 404, headers: { 'Content-Type': 'application/json' }
@@ -57,127 +62,191 @@ export const GET: APIRoute = async ({ url, cookies }) => {
     });
   }
 
+  const products = getProducts();
   return new Response(JSON.stringify({ products }), {
     status: 200, headers: { 'Content-Type': 'application/json' }
   });
 };
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-  if (!checkAuth(cookies)) {
-    return redirect('/admin/login/');
-  }
+  const { authed, token } = checkAuth(cookies);
+  if (!authed) return redirect('/admin/login/');
 
   const formData = await request.formData();
-  const products = getProducts();
-  const existingId = formData.get('id')?.toString();
+  const isJson = request.headers.get('Accept') === 'application/json';
 
-  if (existingId) {
-    const index = products.findIndex(p => p.id === existingId);
-    if (index === -1) {
-      return new Response(JSON.stringify({ error: 'Product not found' }), {
-        status: 404, headers: { 'Content-Type': 'application/json' }
+  const csrfToken = formData.get('_csrf')?.toString();
+  if (!csrfToken || !validateCsrfToken(csrfToken, token!)) {
+    if (isJson) {
+      return new Response(JSON.stringify({ error: 'Invalid CSRF token' }), {
+        status: 403, headers: { 'Content-Type': 'application/json' }
       });
     }
+    return redirect('/admin/products/add/?error=Invalid+CSRF+token.+Please+try+again.');
+  }
 
-    products[index] = {
-      ...products[index],
-      title: formData.get('title')?.toString() || products[index].title,
-      price: formData.get('price')?.toString() || products[index].price,
-      originalPrice: formData.get('originalPrice')?.toString() || products[index].originalPrice,
-      imageUrl: formData.get('imageUrl')?.toString() || products[index].imageUrl,
-      amazonUrl: formData.get('amazonUrl')?.toString() || products[index].amazonUrl,
-      affiliateUrl: formData.get('affiliateUrl')?.toString() || products[index].affiliateUrl,
-      description: formData.get('description')?.toString() || products[index].description,
-      rating: formData.get('rating')?.toString() || products[index].rating,
-      category: formData.get('category')?.toString() || products[index].category,
-    };
+  const existingId = formData.get('id')?.toString();
 
-    saveProducts(products);
+  const rawRating = formData.get('rating')?.toString();
 
-    if (request.headers.get('Accept') === 'application/json') {
-      return new Response(JSON.stringify(products[index]), {
+  const fields: Record<string, string | undefined> = {
+    title: formData.get('title')?.toString(),
+    price: formData.get('price')?.toString(),
+    originalPrice: formData.get('originalPrice')?.toString(),
+    imageUrl: formData.get('imageUrl')?.toString(),
+    amazonUrl: formData.get('amazonUrl')?.toString(),
+    affiliateUrl: formData.get('affiliateUrl')?.toString(),
+    description: formData.get('description')?.toString(),
+    rating: formatRating(rawRating),
+    category: formData.get('category')?.toString(),
+  };
+
+  const errors = validateProductInput(fields);
+  if (errors.length > 0) {
+    if (isJson) {
+      return new Response(JSON.stringify({ error: errors.join('; ') }), {
+        status: 400, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    return redirect(`/admin/products/add/?error=${encodeURIComponent(errors.join('; '))}`);
+  }
+
+  if (existingId) {
+    const existing = getProductById(existingId);
+    if (!existing) {
+      if (isJson) {
+        return new Response(JSON.stringify({ error: 'Product not found' }), {
+          status: 404, headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return redirect('/admin/dashboard/?error=Product+not+found');
+    }
+
+    const updated: Partial<Product> = {};
+    for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category'] as const) {
+      if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
+    }
+    updateProduct(existingId, updated);
+
+    if (isJson) {
+      return new Response(JSON.stringify({ ...existing, ...updated }), {
         status: 200, headers: { 'Content-Type': 'application/json' }
       });
     }
-
     return redirect('/admin/dashboard/');
   }
 
   const newProduct: Product = {
     id: crypto.randomUUID(),
-    title: formData.get('title')?.toString() || '',
-    price: formData.get('price')?.toString() || '',
-    originalPrice: formData.get('originalPrice')?.toString() || '',
-    imageUrl: formData.get('imageUrl')?.toString() || '',
-    amazonUrl: formData.get('amazonUrl')?.toString() || '',
-    affiliateUrl: formData.get('affiliateUrl')?.toString() || '',
-    description: formData.get('description')?.toString() || '',
-    rating: formData.get('rating')?.toString() || '',
-    category: formData.get('category')?.toString() || 'Uncategorized',
+    title: fields.title || '',
+    price: fields.price || '',
+    originalPrice: fields.originalPrice || '',
+    imageUrl: fields.imageUrl || '',
+    amazonUrl: fields.amazonUrl || '',
+    affiliateUrl: fields.affiliateUrl || '',
+    description: fields.description || '',
+    rating: fields.rating || '',
+    category: fields.category || 'Uncategorized',
     createdAt: new Date().toISOString(),
   };
 
-  products.push(newProduct);
-  saveProducts(products);
+  createProduct(newProduct);
 
-  if (request.headers.get('Accept') === 'application/json') {
+  if (isJson) {
     return new Response(JSON.stringify(newProduct), {
       status: 201, headers: { 'Content-Type': 'application/json' }
     });
   }
-
   return redirect('/admin/dashboard/');
 };
 
 export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
-  if (!checkAuth(cookies)) {
-    return redirect('/admin/login/');
-  }
+  const { authed, token } = checkAuth(cookies);
+  if (!authed) return redirect('/admin/login/');
 
   const formData = await request.formData();
+  const isJson = request.headers.get('Accept') === 'application/json';
+
+  const csrfToken = formData.get('_csrf')?.toString();
+  if (!csrfToken || !validateCsrfToken(csrfToken, token!)) {
+    if (isJson) {
+      return new Response(JSON.stringify({ error: 'Invalid CSRF token' }), {
+        status: 403, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    return redirect('/admin/dashboard/?error=Invalid+CSRF+token');
+  }
+
   const id = formData.get('id')?.toString();
   if (!id) {
-    return new Response(JSON.stringify({ error: 'Product ID required' }), {
-      status: 400, headers: { 'Content-Type': 'application/json' }
-    });
+    if (isJson) {
+      return new Response(JSON.stringify({ error: 'Product ID required' }), {
+        status: 400, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    return redirect('/admin/dashboard/?error=Product+ID+required');
   }
 
-  const products = getProducts();
-  const index = products.findIndex(p => p.id === id);
-  if (index === -1) {
-    return new Response(JSON.stringify({ error: 'Product not found' }), {
-      status: 404, headers: { 'Content-Type': 'application/json' }
-    });
+  const existing = getProductById(id);
+  if (!existing) {
+    if (isJson) {
+      return new Response(JSON.stringify({ error: 'Product not found' }), {
+        status: 404, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    return redirect('/admin/dashboard/?error=Product+not+found');
   }
 
-  products[index] = {
-    ...products[index],
-    title: formData.get('title')?.toString() || products[index].title,
-    price: formData.get('price')?.toString() || products[index].price,
-    originalPrice: formData.get('originalPrice')?.toString() || products[index].originalPrice,
-    imageUrl: formData.get('imageUrl')?.toString() || products[index].imageUrl,
-    amazonUrl: formData.get('amazonUrl')?.toString() || products[index].amazonUrl,
-    affiliateUrl: formData.get('affiliateUrl')?.toString() || products[index].affiliateUrl,
-    description: formData.get('description')?.toString() || products[index].description,
-    rating: formData.get('rating')?.toString() || products[index].rating,
-    category: formData.get('category')?.toString() || products[index].category,
+  const rawRating = formData.get('rating')?.toString();
+
+  const fields: Record<string, string | undefined> = {
+    title: formData.get('title')?.toString(),
+    price: formData.get('price')?.toString(),
+    originalPrice: formData.get('originalPrice')?.toString(),
+    imageUrl: formData.get('imageUrl')?.toString(),
+    amazonUrl: formData.get('amazonUrl')?.toString(),
+    affiliateUrl: formData.get('affiliateUrl')?.toString(),
+    description: formData.get('description')?.toString(),
+    rating: formatRating(rawRating),
+    category: formData.get('category')?.toString(),
   };
 
-  saveProducts(products);
+  const errors = validateProductInput(fields);
+  if (errors.length > 0) {
+    if (isJson) {
+      return new Response(JSON.stringify({ error: errors.join('; ') }), {
+        status: 400, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    return redirect(`/admin/products/edit/${id}/?error=${encodeURIComponent(errors.join('; '))}`);
+  }
 
-  if (request.headers.get('Accept') === 'application/json') {
-    return new Response(JSON.stringify(products[index]), {
+  const updated: Partial<Product> = {};
+  for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category'] as const) {
+    if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
+  }
+  updateProduct(id, updated);
+
+  if (isJson) {
+    return new Response(JSON.stringify({ ...existing, ...updated }), {
       status: 200, headers: { 'Content-Type': 'application/json' }
     });
   }
-
   return redirect('/admin/dashboard/');
 };
 
 export const DELETE: APIRoute = async ({ request, cookies }) => {
-  if (!checkAuth(cookies)) {
+  const { authed, token } = checkAuth(cookies);
+  if (!authed) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  const csrfToken = request.headers.get('x-csrf-token');
+  if (!csrfToken || !validateCsrfToken(csrfToken, token!)) {
+    return new Response(JSON.stringify({ error: 'Invalid CSRF token' }), {
+      status: 403, headers: { 'Content-Type': 'application/json' }
     });
   }
 
@@ -189,10 +258,7 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
     });
   }
 
-  let products = getProducts();
-  products = products.filter(p => p.id !== id);
-  saveProducts(products);
-
+  deleteProduct(id);
   return new Response(JSON.stringify({ success: true }), {
     status: 200, headers: { 'Content-Type': 'application/json' }
   });

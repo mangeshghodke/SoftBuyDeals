@@ -1,18 +1,8 @@
 import { getCollection } from 'astro:content';
-import { readFileSync, existsSync } from 'node:fs';
-
-const DATA_FILE = 'src/data/products.json';
-
-function getProducts() {
-  try {
-    if (!existsSync(DATA_FILE)) return [];
-    return JSON.parse(readFileSync(DATA_FILE, 'utf-8')).products || [];
-  } catch { return []; }
-}
+import { getProducts } from '../lib/db';
 
 export async function GET() {
   const blog = await getCollection('blog');
-  const changelog = await getCollection('changelog');
   const products = getProducts();
 
   const searchIndex = [
@@ -22,13 +12,6 @@ export async function GET() {
       slug: `/blog/${post.id}`,
       url: `/blog/${post.id}/`,
       type: 'Blog Post'
-    })),
-    ...changelog.map(entry => ({
-      title: `${entry.data.version}: ${entry.data.title}`,
-      description: 'Product update and changelog entry.',
-      slug: '/changelog',
-      url: '/changelog/',
-      type: 'Changelog'
     })),
     ...products.map(product => ({
       title: product.title,
