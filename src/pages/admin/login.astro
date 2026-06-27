@@ -1,6 +1,14 @@
 ---
+import { env } from 'cloudflare:workers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
+import { validateSession } from '../../lib/session';
+
+const sessionToken = Astro.cookies.get('session')?.value;
+const secret = env.SESSION_SECRET as string;
+if (sessionToken && validateSession(sessionToken, secret)) {
+  return Astro.redirect('/admin/dashboard/');
+}
 
 const error = Astro.url.searchParams.get('error');
 ---
