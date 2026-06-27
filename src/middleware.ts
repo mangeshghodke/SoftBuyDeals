@@ -1,22 +1,42 @@
 import { defineMiddleware } from 'astro:middleware';
 import { validateSession } from './lib/session';
 
-const ADMIN_ROUTES = ['/admin/dashboard', '/admin/products', '/admin/login'];
-const PUBLIC_ADMIN_ROUTES = ['/admin/login'];
+const ADMIN_ROUTES = ['/admin/dashboard', '/admin/products'];
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://formsubmit.co",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' data: https:",
+  "font-src 'self' https://fonts.gstatic.com",
+  "connect-src 'self' https://formsubmit.co",
+  "frame-ancestors 'none'",
+  "form-action 'self' https://formsubmit.co",
+].join('; ');
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
   const pathname = url.pathname.replace(/\/$/, '') || '/';
 
   const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route));
-  const isPublicAdminRoute = PUBLIC_ADMIN_ROUTES.some(route => pathname === route);
 
-  if (isAdminRoute && !isPublicAdminRoute) {
+  if (isAdminRoute) {
     const sessionToken = context.cookies.get('session')?.value;
     if (!sessionToken || !validateSession(sessionToken)) {
       return context.redirect('/admin/login/');
     }
   }
 
-  return next();
+  const response = await next();
+
+  if (import.meta.env.PROD) {
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    response.headers.set('Content-Security-Policy', CSP);
+  }
+
+  return response;
 });
