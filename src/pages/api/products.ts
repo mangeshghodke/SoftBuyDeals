@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import { validateSession, validateCsrfToken } from '../../lib/session';
 import { getProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../../lib/data';
 import type { Product } from '../../lib/data';
+import { notifyProduct } from '../../lib/telegram';
 
 function isFormSubmit(request: Request): boolean {
   return request.headers.get('Accept') !== 'application/json';
@@ -145,6 +146,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   };
 
   await createProduct(db, newProduct);
+
+  notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string);
 
   if (isJson) {
     return new Response(JSON.stringify(newProduct), {
