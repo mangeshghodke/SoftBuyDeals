@@ -8,6 +8,7 @@ export const BRAND_LOGO_TEXT = 'SB';
 
 export const SOCIAL_LINKS = {
   twitter: 'https://twitter.com/softbuydeals',
+  telegram: 'https://t.me/softbuydeals',
   github: 'https://github.com/mangeshghodke',
   linkedin: 'https://linkedin.com/in/softbuydeals',
 };
