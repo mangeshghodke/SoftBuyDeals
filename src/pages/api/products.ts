@@ -147,7 +147,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
   await createProduct(db, newProduct);
 
-  notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string);
+  await notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string);
 
   if (isJson) {
     return new Response(JSON.stringify(newProduct), {
