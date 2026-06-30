@@ -3,6 +3,7 @@ import { NAV_LINKS, BRAND_NAME, BRAND_LOGO_TEXT } from '../config';
 import { resolvePath } from '../utils/navigation';
 
 const currentPath = Astro.url.pathname;
+const isAdmin = currentPath.startsWith('/admin/');
 
 function isActive(href: string): boolean {
   if (href === '/') return currentPath === '/' || currentPath === '';
@@ -15,7 +16,7 @@ function isActive(href: string): boolean {
   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <div class="flex-shrink-0">
-        <a href={resolvePath('/')} class="flex items-center gap-2 group">
+        <a href={resolvePath('/')} class="flex items-center gap-2 group" {...(isAdmin ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
           <div class="w-8 h-8 bg-primary-600 dark:bg-primary-500 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
             <span class="text-white font-bold text-xl leading-none">{BRAND_LOGO_TEXT}</span>
           </div>
@@ -31,6 +32,7 @@ function isActive(href: string): boolean {
               href={resolvePath(link.href)}
               class={`text-sm font-medium transition-colors ${active ? 'text-primary-600 dark:text-primary-400' : 'text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400'}`}
               aria-current={active ? 'page' : undefined}
+              {...(isAdmin ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               {link.label}
             </a>
@@ -86,6 +88,7 @@ function isActive(href: string): boolean {
             href={resolvePath(link.href)}
             class={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${active ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/30' : 'text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
             aria-current={active ? 'page' : undefined}
+            {...(isAdmin ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
           >
             {link.label}
           </a>
