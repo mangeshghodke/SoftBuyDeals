@@ -87,3 +87,26 @@ export async function deleteProduct(db: any, id: string): Promise<void> {
   await ensureTable(db);
   await db.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
 }
+
+async function ensureCounterTable(db: any): Promise<void> {
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS visitor_counter (
+      id INTEGER PRIMARY KEY,
+      count INTEGER NOT NULL DEFAULT 0
+    )
+  `).run();
+  await db.prepare('INSERT OR IGNORE INTO visitor_counter (id, count) VALUES (1, 0)').run();
+}
+
+export async function getCounter(db: any): Promise<number> {
+  await ensureCounterTable(db);
+  const row = await db.prepare('SELECT count FROM visitor_counter WHERE id = 1').first();
+  return (row?.count as number) || 0;
+}
+
+export async function incrementCounter(db: any): Promise<number> {
+  await ensureCounterTable(db);
+  await db.prepare('UPDATE visitor_counter SET count = count + 1 WHERE id = 1').run();
+  const row = await db.prepare('SELECT count FROM visitor_counter WHERE id = 1').first();
+  return (row?.count as number) || 0;
+}
