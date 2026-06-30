@@ -1,7 +1,7 @@
 export const SITE_TITLE = 'SoftBuyDeals';
 export const SITE_DESCRIPTION = 'Best deals and discounts on Amazon.in — curated products with affiliate prices just for you.';
 export const SITE_URL = 'https://softbuydeals.ghodke-mangesh2.workers.dev';
-export const REPOSITORY_URL = 'https://github.com/farrosfr/zenix';
+export const REPOSITORY_URL = 'https://github.com/mangeshghodke/SoftBuyDeals';
 
 export const BRAND_NAME = 'SoftBuyDeals';
 export const BRAND_LOGO_TEXT = 'SBD';

@@ -1,16 +1,16 @@
 {
-  "name": "zenix",
-  "description": "A high-performance Astro 6 SaaS theme by Farros FR. 100/100 Lighthouse optimized with dark mode, MDX blog, changelog, and search.",
+  "name": "softbuydeals",
+  "description": "SoftBuyDeals — Best deals and discounts on Amazon.in.",
   "type": "module",
   "version": "0.0.1",
   "license": "MIT",
-  "homepage": "https://zenix.farrosfr.com/",
+  "homepage": "https://softbuydeals.ghodke-mangesh2.workers.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/farrosfr/zenix.git"
+    "url": "https://github.com/mangeshghodke/SoftBuyDeals.git"
   },
   "bugs": {
-    "url": "https://github.com/farrosfr/zenix/issues"
+    "url": "https://github.com/mangeshghodke/SoftBuyDeals/issues"
   },
   "keywords": [
     "astro",
