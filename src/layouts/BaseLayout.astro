@@ -17,6 +17,7 @@ interface Props {
   publishedDate?: Date;
   modifiedDate?: Date;
   author?: string;
+  robots?: string;
 }
 
 const {
@@ -27,6 +28,7 @@ const {
   publishedDate,
   modifiedDate,
   author,
+  robots = 'index, follow',
 } = Astro.props;
 
 const siteURL = SITE_URL.endsWith('/') ? SITE_URL : `${SITE_URL}/`;
@@ -34,7 +36,6 @@ const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `$
 const canonicalURL = new URL(canonicalPath, siteURL).href;
 const imageURL = new URL(image, siteURL).href;
 const fullTitle = `${title} | ${SITE_TITLE}`;
-const robotsContent = 'index, follow';
 const structuredData =
   type === 'article'
     ? {
@@ -78,9 +79,11 @@ const structuredData =
     <link rel="icon" type="image/svg+xml" href={resolvePath('/favicon.svg')} />
     <link rel="canonical" href={canonicalURL} />
     <link rel="sitemap" href={resolvePath('/sitemap.xml')} />
+    <link rel="preconnect" href="https://m.media-amazon.com" />
+    <link rel="dns-prefetch" href="https://m.media-amazon.com" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
-    <meta name="robots" content={robotsContent} />
+    <meta name="robots" content={robots} />
     
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -96,7 +99,7 @@ const structuredData =
     )}
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@farrosfr_" />
+    <meta name="twitter:site" content="@softbuydeals" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageURL} />

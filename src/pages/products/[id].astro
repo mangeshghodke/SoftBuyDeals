@@ -2,6 +2,7 @@
 import { env } from 'cloudflare:workers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getProducts } from '../../lib/data';
+import { SITE_URL } from '../../config';
 
 const { id } = Astro.params;
 const db = env.DB;
@@ -18,9 +19,35 @@ function getRatingPercent(rating: string): number {
   }
   return 0;
 }
+
+const productURL = `${SITE_URL.replace(/\/$/, '')}/products/${product.id}/`;
+
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.title,
+  description: product.description?.slice(0, 500) || undefined,
+  image: product.imageUrl || undefined,
+  url: productURL,
+  offers: {
+    '@type': 'Offer',
+    price: product.price.replace(/[₹,]/g, ''),
+    priceCurrency: 'INR',
+    url: product.affiliateUrl || productURL,
+    availability: 'https://schema.org/InStock',
+  },
+  ...(product.rating ? {
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.rating.match(/([\d.]+)/)?.[0] || undefined,
+      bestRating: '5',
+    },
+  } : {}),
+};
 ---
 
 <BaseLayout title={product.title} description={product.description?.slice(0, 160)}>
+  <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
   <section class="py-8 md:py-16">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="mb-6">
@@ -30,7 +57,7 @@ function getRatingPercent(rating: string): number {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         <div class="glass-panel rounded-2xl p-6 sm:p-8 flex items-center justify-center aspect-square">
           {product.imageUrl ? (
-            <img src={product.imageUrl} alt={product.title} class="w-full h-full object-contain max-h-[450px]" />
+            <img src={product.imageUrl} alt={product.title} fetchpriority="high" class="w-full h-full object-contain max-h-[450px]" />
           ) : (
             <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600">
               <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>

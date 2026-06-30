@@ -21,7 +21,7 @@ const error = Astro.url.searchParams.get('error');
 const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
 ---
 
-<BaseLayout title="Edit Product">
+<BaseLayout title="Edit Product" robots="noindex, nofollow">
   <section class="py-8 md:py-12">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
       <div class="mb-8">

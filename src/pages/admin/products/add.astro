@@ -10,7 +10,7 @@ const csrfToken = sessionToken ? getCsrfToken(sessionToken, secret) : '';
 const error = Astro.url.searchParams.get('error');
 ---
 
-<BaseLayout title="Add Product">
+<BaseLayout title="Add Product" robots="noindex, nofollow">
   <section class="py-8 md:py-12">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
       <div class="mb-8">

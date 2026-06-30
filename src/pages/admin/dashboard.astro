@@ -16,7 +16,7 @@ const sessionToken = Astro.cookies.get('session')?.value || '';
 const csrfToken = sessionToken ? getCsrfToken(sessionToken, secret) : '';
 ---
 
-<BaseLayout title="Admin Dashboard">
+<BaseLayout title="Admin Dashboard" robots="noindex, nofollow">
   <section class="py-8 md:py-12">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">

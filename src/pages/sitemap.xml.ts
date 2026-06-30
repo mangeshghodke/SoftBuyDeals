@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { getCollection } from 'astro:content';
 import { SITE_URL } from '../config';
+import { getProducts } from '../lib/data';
 
 type SitemapEntry = {
   path: string;
@@ -29,11 +31,16 @@ const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
 export const GET: APIRoute = async () => {
   const posts = await getCollection('blog', ({ data }) => data.draft !== true);
+  const products = await getProducts(env.DB);
   const entries = [
     ...staticEntries,
     ...posts.map((post) => ({
       path: `/blog/${post.id}/`,
       lastmod: post.data.updatedDate ?? post.data.pubDate,
+    })),
+    ...products.map((product) => ({
+      path: `/products/${product.id}/`,
+      lastmod: product.createdAt ? new Date(product.createdAt) : undefined,
     })),
   ];
 
