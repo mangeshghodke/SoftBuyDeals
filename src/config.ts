@@ -4,7 +4,7 @@ export const SITE_URL = 'https://softbuydeals.com';
 export const REPOSITORY_URL = 'https://github.com/farrosfr/zenix';
 
 export const BRAND_NAME = 'SoftBuyDeals';
-export const BRAND_LOGO_TEXT = 'SB';
+export const BRAND_LOGO_TEXT = 'SBD';
 
 export const SOCIAL_LINKS = {
   twitter: 'https://twitter.com/softbuydeals',
