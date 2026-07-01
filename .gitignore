@@ -25,6 +25,9 @@ data/
 .env
 .env.production
 
+# local cloudflare state
+.wrangler/
+
 # macOS-specific files
 .DS_Store
 

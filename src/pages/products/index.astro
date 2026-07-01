@@ -4,13 +4,42 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getProducts } from '../../lib/data';
 
+const PER_PAGE = 12;
+
 const db = env.DB;
 const allProducts = await getProducts(db);
 const categories = [...new Set(allProducts.map(p => p.category))];
 const selectedCategory = Astro.url.searchParams.get('category');
-const products = selectedCategory
+const filtered = selectedCategory
   ? allProducts.filter(p => p.category === selectedCategory)
   : allProducts;
+const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+const currentPage = Math.min(totalPages, Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1', 10) || 1));
+const products = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+
+function pageUrl(page: number): string {
+  const params = new URLSearchParams();
+  if (selectedCategory) params.set('category', selectedCategory);
+  if (page > 1) params.set('page', String(page));
+  const qs = params.toString();
+  return qs ? `/products/?${qs}` : '/products/';
+}
+
+function pageRange(): (number | '...')[] {
+  const range: (number | '...')[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) range.push(i);
+    return range;
+  }
+  range.push(1);
+  if (currentPage > 3) range.push('...');
+  const start = Math.max(2, currentPage - 1);
+  const end = Math.min(totalPages - 1, currentPage + 1);
+  for (let i = start; i <= end; i++) range.push(i);
+  if (currentPage < totalPages - 2) range.push('...');
+  range.push(totalPages);
+  return range;
+}
 ---
 
 <BaseLayout title="Products" description="Browse our curated collection of best deals on Amazon.in">
@@ -53,11 +82,39 @@ const products = selectedCategory
           <p class="text-slate-500 dark:text-slate-400">Check back soon for amazing deals!</p>
         </div>
       ) : (
+        <>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {products.map(product => (
             <ProductCard product={product} />
           ))}
         </div>
+        {totalPages > 1 && (
+          <nav class="flex items-center justify-center gap-2 mt-10">
+            {currentPage > 1 && (
+              <a href={pageUrl(currentPage - 1)} class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                &laquo; Prev
+              </a>
+            )}
+            {pageRange().map((p) =>
+              p === '...' ? (
+                <span class="px-2 py-2 text-sm text-slate-400">...</span>
+              ) : (
+                <a
+                  href={pageUrl(p)}
+                  class={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${p === currentPage ? 'bg-primary-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                >
+                  {p}
+                </a>
+              )
+            )}
+            {currentPage < totalPages && (
+              <a href={pageUrl(currentPage + 1)} class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                Next &raquo;
+              </a>
+            )}
+          </nav>
+        )}
+        </>
       )}
     </div>
   </section>
