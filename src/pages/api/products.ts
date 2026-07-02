@@ -148,13 +148,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
   await createProduct(db, newProduct);
 
-  notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string);
-
-  const threadsToken = env.THREADS_ACCESS_TOKEN as string | undefined;
-  const threadsUserId = env.THREADS_USER_ID as string | undefined;
-  if (threadsToken && threadsUserId) {
-    postThread(newProduct, threadsToken, threadsUserId);
-  }
+  await Promise.all([
+    notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string),
+    ...(env.THREADS_ACCESS_TOKEN && env.THREADS_USER_ID
+      ? [postThread(newProduct, env.THREADS_ACCESS_TOKEN as string, env.THREADS_USER_ID as string)]
+      : []),
+  ]);
 
   if (isJson) {
     return new Response(JSON.stringify(newProduct), {
