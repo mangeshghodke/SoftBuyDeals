@@ -148,12 +148,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
   await createProduct(db, newProduct);
 
-  await notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string);
+  notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string);
 
   const threadsToken = env.THREADS_ACCESS_TOKEN as string | undefined;
   const threadsUserId = env.THREADS_USER_ID as string | undefined;
   if (threadsToken && threadsUserId) {
-    await postThread(newProduct, threadsToken, threadsUserId);
+    postThread(newProduct, threadsToken, threadsUserId);
   }
 
   if (isJson) {
