@@ -22,19 +22,19 @@ function buildCaption(product: Product): string {
   const parts: string[] = [];
   parts.push(`🎯 ${product.title}`);
   parts.push('');
-  parts.push(`✅ **Offer Price:** ${fmtPrice(product.price)}`);
+  parts.push(`**Offer Price:** ✅ ${fmtPrice(product.price)}`);
 
   if (mrp !== null && mrp > (offer ?? 0)) {
-    parts.push(`❌ ~~MRP: ${fmtPrice(product.originalPrice)}~~`);
+    parts.push(`~~MRP: ❌ ${fmtPrice(product.originalPrice)}~~`);
   }
 
   if (savings !== null && savings > 0) {
     const pct = Math.round((savings / mrp!) * 100);
-    parts.push(`🔥 **Save ₹${savings.toLocaleString('en-IN')}** (${pct}% off)`);
+    parts.push(`**Save 🔥 ₹${savings.toLocaleString('en-IN')}** (${pct}% off)`);
   }
 
   if (product.category) {
-    parts.push(`📂 ${product.category}`);
+    parts.push(`${product.category} 📂`);
   }
 
   parts.push('');
