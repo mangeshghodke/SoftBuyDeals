@@ -62,7 +62,7 @@ export const GET: APIRoute = async ({ url }) => {
   });
 };
 
-export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => {
   const db = env.DB;
   const secret = env.SESSION_SECRET as string;
   const { authed, token } = checkAuth(cookies, secret);
@@ -148,12 +148,18 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
   await createProduct(db, newProduct);
 
-  await Promise.all([
+  const ctx = (locals as any).runtime?.ctx;
+  const notifications = Promise.all([
     notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string),
     ...(env.THREADS_ACCESS_TOKEN && env.THREADS_USER_ID
       ? [postThread(newProduct, env.THREADS_ACCESS_TOKEN as string, env.THREADS_USER_ID as string)]
       : []),
   ]);
+  if (ctx?.waitUntil) {
+    ctx.waitUntil(notifications);
+  } else {
+    await notifications;
+  }
 
   if (isJson) {
     return new Response(JSON.stringify(newProduct), {
