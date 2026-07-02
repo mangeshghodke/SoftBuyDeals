@@ -1,6 +1,6 @@
 import type { Product } from './data';
 
-const API_VERSION = 'v22.0';
+const API_VERSION = 'v1.0';
 const API_BASE = `https://graph.threads.net/${API_VERSION}`;
 
 function parsePrice(s: string | undefined): number | null {
@@ -54,14 +54,17 @@ async function apiFetch(
   accessToken: string,
 ): Promise<Response> {
   const url = new URL(`${API_BASE}/${path}`);
-  url.searchParams.set('access_token', accessToken);
+  
+  const body = new URLSearchParams();
+  body.set('access_token', accessToken);
   for (const [k, v] of Object.entries(params)) {
-    url.searchParams.set(k, v);
+    body.set(k, v);
   }
 
   return fetch(url.toString(), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
     signal: AbortSignal.timeout(10000),
   });
 }
