@@ -4,6 +4,7 @@ import { validateSession, validateCsrfToken } from '../../lib/session';
 import { getProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../../lib/data';
 import type { Product } from '../../lib/data';
 import { notifyProduct } from '../../lib/telegram';
+import { postThread } from '../../lib/threads';
 
 function isFormSubmit(request: Request): boolean {
   return request.headers.get('Accept') !== 'application/json';
@@ -148,6 +149,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   await createProduct(db, newProduct);
 
   await notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string);
+
+  const threadsToken = env.THREADS_ACCESS_TOKEN as string | undefined;
+  const threadsUserId = env.THREADS_USER_ID as string | undefined;
+  if (threadsToken && threadsUserId) {
+    await postThread(newProduct, threadsToken, threadsUserId);
+  }
 
   if (isJson) {
     return new Response(JSON.stringify(newProduct), {
