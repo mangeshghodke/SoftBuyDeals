@@ -148,7 +148,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
 
   await createProduct(db, newProduct);
 
-  const ctx = (locals as any).runtime?.ctx;
+  const ctx = (locals as any).cfContext;
   const notifications = Promise.all([
     notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string),
     ...(env.THREADS_ACCESS_TOKEN && env.THREADS_USER_ID
