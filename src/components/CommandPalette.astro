@@ -71,15 +71,15 @@ import { resolvePath } from '../utils/navigation';
 
     if (!palette || !input || !resultsList || !helpState) return;
     
-    window.__zenixSearchIndex = window.__zenixSearchIndex || [];
-    window.__zenixSearchLoaded = window.__zenixSearchLoaded || false;
+    window.__searchIndex = window.__searchIndex || [];
+    window.__searchLoaded = window.__searchLoaded || false;
 
     async function loadIndex() {
-      if (window.__zenixSearchLoaded) return;
+      if (window.__searchLoaded) return;
       try {
         const response = await fetch(`${resolvePath}search-index.json`);
-        window.__zenixSearchIndex = await response.json();
-        window.__zenixSearchLoaded = true;
+        window.__searchIndex = await response.json();
+        window.__searchLoaded = true;
 
         const query = input.value.toLowerCase().trim();
         if (query) {
@@ -91,7 +91,7 @@ import { resolvePath } from '../utils/navigation';
     }
 
     function getMatches(query) {
-      return window.__zenixSearchIndex.filter(item => 
+      return window.__searchIndex.filter(item => 
         item.title.toLowerCase().includes(query) || 
         (item.description && item.description.toLowerCase().includes(query))
       );
@@ -112,8 +112,8 @@ import { resolvePath } from '../utils/navigation';
 
     window.toggleCommandPalette = togglePalette;
 
-    if (!window.__zenixSearchKeyBound) {
-      window.__zenixSearchKeyBound = true;
+    if (!window.__searchKeyBound) {
+      window.__searchKeyBound = true;
       window.addEventListener('keydown', (e) => {
         const activePalette = document.getElementById('command-palette');
         if ((e.metaKey || e.ctrlKey) && e.key === 'k') {

@@ -130,8 +130,8 @@ const structuredData =
 
         applyTheme(getPreferredTheme());
 
-        if (!window.__zenixThemeBound) {
-          window.__zenixThemeBound = true;
+        if (!window.__themeBound) {
+          window.__themeBound = true;
 
           document.addEventListener('astro:before-swap', (event) => {
             const theme = localStorage.getItem('theme') || getPreferredTheme();
