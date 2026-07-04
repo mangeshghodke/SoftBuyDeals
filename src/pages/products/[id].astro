@@ -46,7 +46,7 @@ const productSchema = {
 };
 ---
 
-<BaseLayout title={product.title} description={product.description?.slice(0, 160)}>
+<BaseLayout title={product.title} description={product.description?.slice(0, 160)} image={product.imageUrl || undefined}>
   <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
   <section class="py-8 md:py-16">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">

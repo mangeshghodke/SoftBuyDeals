@@ -1,4 +1,5 @@
 import type { Product } from './data';
+import { SITE_URL } from '../config';
 
 const API_VERSION = 'v1.0';
 const API_BASE = `https://graph.threads.net/${API_VERSION}`;
@@ -39,9 +40,7 @@ function buildCaption(product: Product): string {
 
   parts.push('');
 
-  if (product.affiliateUrl) {
-    parts.push(product.affiliateUrl);
-  }
+  parts.push(`${SITE_URL.replace(/\/$/, '')}/products/${product.id}/`);
 
   parts.push('');
   parts.push('#softbuydeals #amazonfinds #deals');
