@@ -178,18 +178,20 @@ const productSchema = {
   </section>
 </BaseLayout>
 
-<script define:vars={{ chartData }}>
-  (async () => {
-    const { default: Chart } = await import('https://cdn.jsdelivr.net/npm/chart.js@4.4.7/+esm');
+<script type="application/json" id="chart-data">{JSON.stringify(chartData)}</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('priceChart');
     if (!canvas) return;
+    const data = JSON.parse(document.getElementById('chart-data').textContent);
     const ctx = canvas.getContext('2d');
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: chartData.map(d => d.date),
+        labels: data.map(d => d.date),
         datasets: [{
-          data: chartData.map(d => d.price),
+          data: data.map(d => d.price),
           borderColor: '#6366f1',
           backgroundColor: 'rgba(99, 102, 241, 0.1)',
           fill: true,
@@ -245,5 +247,5 @@ const productSchema = {
         },
       },
     });
-  })();
+  });
 </script>
