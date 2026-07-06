@@ -192,6 +192,17 @@ const catColors = [
     dots.forEach(function(d) {
       d.addEventListener('click', function() { goTo(parseInt(this.getAttribute('data-page'))); });
     });
+    var wrapper = track.parentElement;
+    var touchX = 0;
+    if (wrapper) {
+      wrapper.addEventListener('touchstart', function(e) { touchX = e.changedTouches[0].clientX; }, { passive: true });
+      wrapper.addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - touchX;
+        if (Math.abs(dx) > 50) {
+          goTo(page + (dx < 0 ? 1 : -1));
+        }
+      }, { passive: true });
+    }
     goTo(0);
   })();
 </script>
