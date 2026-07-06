@@ -8,7 +8,19 @@ const PER_PAGE = 12;
 
 const db = env.DB;
 const allProducts = await getProducts(db);
-const categories = [...new Set(allProducts.map(p => p.category))];
+const categoryNames = [...new Set(allProducts.map(p => p.category))];
+const catColors = [
+  { bg: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(79,70,229,0.1))', icon: 'rgba(99,102,241,0.15)', border: 'rgba(99,102,241,0.3)' },
+  { bg: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.1))', icon: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.3)' },
+  { bg: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.1))', icon: 'rgba(245,158,11,0.15)', border: 'rgba(245,158,11,0.3)' },
+  { bg: 'linear-gradient(135deg, rgba(244,63,94,0.2), rgba(225,29,72,0.1))', icon: 'rgba(244,63,94,0.15)', border: 'rgba(244,63,94,0.3)' },
+  { bg: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(8,145,178,0.1))', icon: 'rgba(6,182,212,0.15)', border: 'rgba(6,182,212,0.3)' },
+  { bg: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(124,58,237,0.1))', icon: 'rgba(139,92,246,0.15)', border: 'rgba(139,92,246,0.3)' },
+  { bg: 'linear-gradient(135deg, rgba(249,115,22,0.2), rgba(234,88,12,0.1))', icon: 'rgba(249,115,22,0.15)', border: 'rgba(249,115,22,0.3)' },
+  { bg: 'linear-gradient(135deg, rgba(20,184,166,0.2), rgba(13,148,136,0.1))', icon: 'rgba(20,184,166,0.15)', border: 'rgba(20,184,166,0.3)' },
+  { bg: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(219,39,119,0.1))', icon: 'rgba(236,72,153,0.15)', border: 'rgba(236,72,153,0.3)' },
+  { bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.1))', icon: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.3)' },
+];
 const selectedCategory = Astro.url.searchParams.get('category');
 const filtered = selectedCategory
   ? allProducts.filter(p => p.category === selectedCategory)
@@ -54,22 +66,55 @@ function pageRange(): (number | '...')[] {
         </p>
       </div>
 
-      {categories.length > 1 && (
-        <div class="flex flex-wrap justify-center gap-2 mb-10">
-          <a
-            href="/products/"
-            class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${!selectedCategory ? 'bg-primary-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-          >
-            All
-          </a>
-          {categories.map(cat => (
-            <a
-              href={`/products/?category=${encodeURIComponent(cat)}`}
-              class={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat ? 'bg-primary-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-            >
-              {cat}
-            </a>
-          ))}
+      {categoryNames.length > 1 && (
+        <div class="mb-10">
+          <div class="relative" id="cat-carousel">
+            <div class="overflow-hidden rounded-2xl">
+              <div id="cat-track" class="flex transition-transform duration-500 ease-in-out">
+                <a
+                  href="/products/"
+                  class="w-1/2 md:w-1/4 flex-shrink-0 p-2 group"
+                >
+                  <div class={`h-full rounded-2xl p-5 text-center border hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${!selectedCategory ? 'bg-primary-600 text-white border-primary-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300 shadow-sm" style={`background: ${!selectedCategory ? 'rgba(255,255,255,0.2)' : 'rgba(99,102,241,0.15)'};`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke={!selectedCategory ? '#fff' : '#6366f1'}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    </div>
+                    <h3 class="font-heading font-semibold text-sm">All Categories</h3>
+                  </div>
+                </a>
+                {categoryNames.map((cat, i) => {
+                  const c = catColors[i % catColors.length];
+                  const active = selectedCategory === cat;
+                  return <a
+                    href={`/products/?category=${encodeURIComponent(cat)}`}
+                    class="w-1/2 md:w-1/4 flex-shrink-0 p-2 group"
+                  >
+                    <div class="h-full rounded-2xl p-5 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style={`background: ${active ? c.icon.replace('0.15', '0.4') : c.bg}; border: 2px solid ${active ? c.border.replace('0.3', '0.7') : c.border};`}>
+                      <div class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 group-hover:rotate-[-6deg] transition-all duration-300 shadow-sm ring-1 ring-white/20 dark:ring-white/5" style={`background: ${c.icon};`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke={c.icon.replace('0.15', '0.8')}><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                      </div>
+                      <h3 class="font-heading font-semibold text-sm text-slate-900 dark:text-white">{cat}</h3>
+                    </div>
+                  </a>;
+                })}
+              </div>
+            </div>
+            {categoryNames.length > 3 && (
+              <>
+              <button id="cat-prev" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10" aria-label="Previous">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button id="cat-next" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10" aria-label="Next">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+              <div class="flex items-center justify-center gap-2 mt-4">
+                {Array.from({ length: Math.ceil((categoryNames.length + 1) / 4) }, (_, i) => (
+                  <button data-page={i} class="cat-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600 transition-all duration-300 hover:bg-primary-400" aria-label={`Page ${i + 1}`}></button>
+                ))}
+              </div>
+              </>
+            )}
+          </div>
         </div>
       )}
 
@@ -119,3 +164,32 @@ function pageRange(): (number | '...')[] {
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  (function() {
+    var track = document.getElementById('cat-track');
+    if (!track) return;
+    var prevBtn = document.getElementById('cat-prev');
+    var nextBtn = document.getElementById('cat-next');
+    var dots = document.querySelectorAll('.cat-dot');
+    var totalItems = track.children.length;
+    if (totalItems <= 4) return;
+    var page = 0;
+    var totalPages = Math.ceil(totalItems / 4);
+    function goTo(p) {
+      if (p < 0) p = totalPages - 1;
+      if (p >= totalPages) p = 0;
+      page = p;
+      track.style.transform = 'translateX(-' + (page * 100) + '%)';
+      dots.forEach(function(d, i) {
+        d.className = 'cat-dot w-2 h-2 rounded-full transition-all duration-300 ' + (i === page ? 'bg-primary-500 w-6' : 'bg-slate-300 dark:bg-slate-600 hover:bg-primary-400');
+      });
+    }
+    if (nextBtn) nextBtn.addEventListener('click', function() { goTo(page + 1); });
+    if (prevBtn) prevBtn.addEventListener('click', function() { goTo(page - 1); });
+    dots.forEach(function(d) {
+      d.addEventListener('click', function() { goTo(parseInt(this.getAttribute('data-page'))); });
+    });
+    goTo(0);
+  })();
+</script>
