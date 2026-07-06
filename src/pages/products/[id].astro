@@ -189,8 +189,8 @@ const productSchema = {
     const opts = {
       chart: { type: 'line', toolbar: { show: false }, fontFamily: 'inherit', height: 360 },
       series: [{ name: 'Price', data: d.prices }],
-      xaxis: { categories: d.cats, labels: { style: { colors: '#64748b', fontSize: '13px', fontWeight: 500 }, rotate: -45, rotateAlways: d.cats.length > 6, hideOverlappingLabels: false }, axisBorder: { show: false }, axisTicks: { show: false } },
-      yaxis: { labels: { style: { colors: '#64748b', fontSize: '13px', fontWeight: 500 }, formatter: v => '₹' + v.toLocaleString('en-IN'), offsetX: -4 } },
+      xaxis: { categories: d.cats, labels: { style: { colors: '#64748b', fontSize: '13px', fontWeight: 500 }, rotate: -45, rotateAlways: d.cats.length > 6, hideOverlappingLabels: false }, axisBorder: { show: false }, axisTicks: { show: false }, title: { text: 'Date', style: { color: '#64748b', fontSize: '13px', fontWeight: 600 } } },
+      yaxis: { labels: { style: { colors: '#64748b', fontSize: '13px', fontWeight: 500 }, formatter: v => '₹' + v.toLocaleString('en-IN'), offsetX: -4 }, title: { text: 'Price (₹)', style: { color: '#64748b', fontSize: '13px', fontWeight: 600 } } },
       grid: { borderColor: 'rgba(148,163,184,0.12)', padding: { left: 10, right: 10 } },
       stroke: { curve: 'smooth', width: 3, colors: ['#6366f1'] },
       fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0, stops: [0, 100] } },
