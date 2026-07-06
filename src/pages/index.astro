@@ -103,21 +103,17 @@ const catItems: CatItem[] = categories.map((cat, i) => {
               </a>)}
             </div>
           </div>
-          {categories.length > 4 && (
-            <>
-            <button id="cat-prev" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10" aria-label="Previous">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            </button>
-            <button id="cat-next" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10" aria-label="Next">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </button>
-            <div class="flex items-center justify-center gap-2 mt-6">
-              {Array.from({ length: Math.ceil(categories.length / 4) }, (_, i) => (
-                <button data-page={i} class="cat-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600 transition-all duration-300 hover:bg-primary-400" aria-label={`Page ${i + 1}`}></button>
-              ))}
-            </div>
-            </>
-          )}
+          <button id="cat-prev" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10" aria-label="Previous">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <button id="cat-next" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10" aria-label="Next">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <div class="flex items-center justify-center gap-2 mt-6">
+            {Array.from({ length: Math.ceil(categories.length / 4) }, (_, i) => (
+              <button data-page={i} class="cat-dot w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600 transition-all duration-300 hover:bg-primary-400" aria-label={`Page ${i + 1}`}></button>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -176,10 +172,8 @@ const catItems: CatItem[] = categories.map((cat, i) => {
     var prevBtn = document.getElementById('cat-prev');
     var nextBtn = document.getElementById('cat-next');
     var dots = document.querySelectorAll('.cat-dot');
-    var totalItems = track.children.length;
-    if (totalItems <= 4) return;
     var page = 0;
-    var totalPages = Math.ceil(totalItems / 4);
+    var totalPages = Math.ceil(track.children.length / 4);
     function goTo(p) {
       if (p < 0) p = totalPages - 1;
       if (p >= totalPages) p = 0;

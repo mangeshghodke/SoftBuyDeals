@@ -70,20 +70,28 @@ function pageRange(): (number | '...')[] {
       {categoryNames.length > 1 && (
         <div class="mb-10">
           <h2 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-4">Categories</h2>
-          <div class="flex gap-2 overflow-x-auto pb-3 scrollbar-thin" style="-webkit-overflow-scrolling:touch">
-            <a
-              href="/products/"
-              class={`shrink-0 rounded-xl px-4 py-2 text-sm font-medium border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${!selectedCategory ? 'bg-primary-600 text-white border-primary-600 shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-            >All</a>
-            {categoryNames.map((cat, i) => {
-              const active = selectedCategory === cat;
-              const color = catColors[colorKeys[i % colorKeys.length]];
-              return <a
-                href={`/products/?category=${encodeURIComponent(cat)}`}
-                class={`shrink-0 rounded-xl px-4 py-2 text-sm font-medium border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${active ? 'shadow-sm' : ''}`}
-                style={active ? `background:${color.replace('0.15','0.35')};border-color:${color.replace('0.15','0.6')};color:#1e293b` : `background:${color};border-color:${color.replace('0.15','0.3')};color:#475569`}
-              >{cat}</a>;
-            })}
+          <div class="relative" id="cat-scroll-wrap">
+            <div id="cat-scroll" class="flex gap-2 overflow-x-auto pb-3 scrollbar-thin" style="-webkit-overflow-scrolling:touch">
+              <a
+                href="/products/"
+                class={`shrink-0 rounded-xl px-4 py-2 text-sm font-medium border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${!selectedCategory ? 'bg-primary-600 text-white border-primary-600 shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+              >All</a>
+              {categoryNames.map((cat, i) => {
+                const active = selectedCategory === cat;
+                const color = catColors[colorKeys[i % colorKeys.length]];
+                return <a
+                  href={`/products/?category=${encodeURIComponent(cat)}`}
+                  class={`shrink-0 rounded-xl px-4 py-2 text-sm font-medium border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${active ? 'shadow-sm' : ''}`}
+                  style={active ? `background:${color.replace('0.15','0.35')};border-color:${color.replace('0.15','0.6')};color:#1e293b` : `background:${color};border-color:${color.replace('0.15','0.3')};color:#475569`}
+                >{cat}</a>;
+              })}
+            </div>
+            <button id="cat-scroll-prev" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10" aria-label="Previous">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <button id="cat-scroll-next" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors z-10" aria-label="Next">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
           </div>
         </div>
       )}
@@ -135,4 +143,29 @@ function pageRange(): (number | '...')[] {
   </section>
 </BaseLayout>
 
+<script>
+  (function() {
+    var scroll = document.getElementById('cat-scroll');
+    if (!scroll) return;
+    var prev = document.getElementById('cat-scroll-prev');
+    var next = document.getElementById('cat-scroll-next');
+    function update() {
+      if (!prev || !next) return;
+      var atStart = scroll.scrollLeft <= 10;
+      var atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 10;
+      prev.style.display = atStart && scroll.scrollWidth <= scroll.clientWidth ? 'none' : '';
+      prev.style.opacity = atStart ? '0.3' : '1';
+      next.style.display = atEnd && scroll.scrollWidth <= scroll.clientWidth ? 'none' : '';
+      next.style.opacity = atEnd ? '0.3' : '1';
+    }
+    if (prev) prev.addEventListener('click', function() {
+      scroll.scrollBy({ left: -scroll.clientWidth * 0.7, behavior: 'smooth' });
+    });
+    if (next) next.addEventListener('click', function() {
+      scroll.scrollBy({ left: scroll.clientWidth * 0.7, behavior: 'smooth' });
+    });
+    scroll.addEventListener('scroll', update);
+    update();
+  })();
+</script>
 
