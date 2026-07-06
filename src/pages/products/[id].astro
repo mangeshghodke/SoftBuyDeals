@@ -178,9 +178,9 @@ const productSchema = {
   </section>
 </BaseLayout>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script define:vars={{ chartData }}>
-  document.addEventListener('DOMContentLoaded', () => {
+  (async () => {
+    const { default: Chart } = await import('https://cdn.jsdelivr.net/npm/chart.js@4.4.7/+esm');
     const canvas = document.getElementById('priceChart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -245,5 +245,5 @@ const productSchema = {
         },
       },
     });
-  });
+  })();
 </script>
