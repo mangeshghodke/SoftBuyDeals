@@ -10,6 +10,7 @@ const featuredProducts = products.slice(0, 4);
 const categoryMap = new Map<string, number>();
 products.forEach(p => categoryMap.set(p.category, (categoryMap.get(p.category) || 0) + 1));
 const categories = [...categoryMap.entries()].map(([name, count]) => ({ name, count }));
+interface CatItem { name: string; bg: string; border: string; icon: string; stroke: string; }
 const catColors = [
   { bg: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(79,70,229,0.1))', icon: 'rgba(99,102,241,0.15)', border: 'rgba(99,102,241,0.3)' },
   { bg: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.1))', icon: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.3)' },
@@ -22,6 +23,10 @@ const catColors = [
   { bg: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(219,39,119,0.1))', icon: 'rgba(236,72,153,0.15)', border: 'rgba(236,72,153,0.3)' },
   { bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.1))', icon: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.3)' },
 ];
+const catItems: CatItem[] = categories.map((cat, i) => {
+  const c = catColors[i % catColors.length];
+  return { name: cat.name, bg: c.bg, border: c.border, icon: c.icon, stroke: c.icon.replace('0.15', '0.8') };
+});
 ---
 
 <BaseLayout title="Home">
@@ -85,20 +90,17 @@ const catColors = [
         <div class="relative" id="category-carousel">
           <div class="overflow-hidden rounded-2xl">
             <div id="category-track" class="flex transition-transform duration-500 ease-in-out">
-              {categories.map((cat, i) => {
-                const c = catColors[i % catColors.length];
-                return <a
-                  href={`/products/?category=${encodeURIComponent(cat.name)}`}
-                  class="w-1/2 md:w-1/4 flex-shrink-0 p-2 group"
-                >
-                  <div class="h-full rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style={`background: ${c.bg}; border: 1px solid ${c.border};`}>
-                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-[-6deg] transition-all duration-300 shadow-sm ring-1 ring-white/20 dark:ring-white/5" style={`background: ${c.icon};`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke={c.icon.replace('0.15', '0.8')}><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
-                    </div>
-                    <h3 class="font-heading font-semibold text-slate-900 dark:text-white transition-colors">{cat.name}</h3>
+              {catItems.map(item => <a
+                href={`/products/?category=${encodeURIComponent(item.name)}`}
+                class="w-1/2 md:w-1/4 flex-shrink-0 p-2 group"
+              >
+                <div class="h-full rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style={`background: ${item.bg}; border: 1px solid ${item.border};`}>
+                  <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-[-6deg] transition-all duration-300 shadow-sm ring-1 ring-white/20 dark:ring-white/5" style={`background: ${item.icon};`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke={item.stroke}><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
                   </div>
-                </a>;
-              })}
+                  <h3 class="font-heading font-semibold text-slate-900 dark:text-white transition-colors">{item.name}</h3>
+                </div>
+              </a>)}
             </div>
           </div>
           {categories.length > 4 && (
