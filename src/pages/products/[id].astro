@@ -36,6 +36,11 @@ if (ogPrice && ogOriginal) {
 const ogCategory = product.category ? ` [${product.category}]` : '';
 const ogDesc = `${ogPrice}${ogOriginal ? ` (was ${ogOriginal})` : ''}${ogSavings}${ogCategory}`;
 
+function resizeImage(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  return url.replace(/\._(S[LX]\d+|SL\d+)_/i, '._SL500_');
+}
+
 const productSchema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
@@ -60,7 +65,7 @@ const productSchema = {
 };
 ---
 
-<BaseLayout title={product.title} description={ogDesc} image={product.imageUrl || undefined} imageWidth="800" imageHeight="800">
+<BaseLayout title={product.title} description={ogDesc} image={resizeImage(product.imageUrl)} imageWidth="500" imageHeight="500">
   <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
   <section class="py-8 md:py-16">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
