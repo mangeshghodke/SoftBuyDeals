@@ -152,37 +152,26 @@ function pageRange(): (number | '...')[] {
 
 <script>
   (function() {
-    var scroll = document.getElementById('cat-scroll');
-    if (!scroll) return;
-    var prev = document.getElementById('cat-scroll-prev');
-    var next = document.getElementById('cat-scroll-next');
-    function update() {
-      if (!prev || !next) return;
-      var canScroll = scroll.scrollWidth > scroll.clientWidth;
-      if (!canScroll) {
-        prev.style.display = 'none';
-        next.style.display = 'none';
-        return;
+    var e = document.getElementById('cat-scroll');
+    if (!e) return;
+    var b = { prev: document.getElementById('cat-scroll-prev'), next: document.getElementById('cat-scroll-next') };
+    function u() {
+      var s = e.scrollWidth > e.clientWidth;
+      for (var k in b) {
+        var v = b[k];
+        if (!v) continue;
+        if (!s) { v.style.display = 'none'; continue; }
+        v.style.display = '';
+        var at = k === 'prev' ? e.scrollLeft <= 3 : e.scrollLeft + e.clientWidth >= e.scrollWidth - 3;
+        v.style.opacity = at ? '0.25' : '1';
       }
-      prev.style.display = '';
-      next.style.display = '';
-      var atStart = scroll.scrollLeft <= 5;
-      var atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 5;
-      prev.style.opacity = atStart ? '0.3' : '1';
-      prev.style.pointerEvents = atStart ? 'none' : 'auto';
-      next.style.opacity = atEnd ? '0.3' : '1';
-      next.style.pointerEvents = atEnd ? 'none' : 'auto';
     }
-    if (prev) prev.addEventListener('click', function() {
-      scroll.scrollLeft -= scroll.clientWidth * 0.7;
-    });
-    if (next) next.addEventListener('click', function() {
-      scroll.scrollLeft += scroll.clientWidth * 0.7;
-    });
-    scroll.addEventListener('scroll', update, { passive: true });
-    update();
-    var active = scroll.querySelector('a[style*="font-weight:600"]');
-    if (active) active.scrollIntoView({ block: 'nearest', inline: 'start' });
+    function n() { e.scrollLeft += e.clientWidth * 0.7; }
+    function p() { e.scrollLeft -= e.clientWidth * 0.7; }
+    if (b.next) b.next.addEventListener('click', function() { n(); setTimeout(u, 50); });
+    if (b.prev) b.prev.addEventListener('click', function() { p(); setTimeout(u, 50); });
+    e.addEventListener('scroll', u, { passive: true });
+    u();
   })();
 </script>
 
