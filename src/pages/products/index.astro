@@ -82,7 +82,7 @@ function pageRange(): (number | '...')[] {
       {categoryNames.length > 1 && (
         <div class="mb-10">
           <h2 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-4">Categories</h2>
-          <div class="relative">
+          <div class="relative" id="cat-scroll-wrap">
             <div id="cat-scroll" class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin" style="scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin">
               <a
                 href="/products/"
@@ -173,12 +173,24 @@ function pageRange(): (number | '...')[] {
 </BaseLayout>
 
 <script>
-  (function() {
+  document.addEventListener('astro:page-load', function() {
     var s = document.getElementById('cat-scroll');
     if (!s) return;
-    var p = document.getElementById('cat-scroll-prev');
-    var n = document.getElementById('cat-scroll-next');
-    function u() {
+    var w = document.getElementById('cat-scroll-wrap');
+    if (!w) return;
+    if (w.dataset.catInited) return;
+    w.dataset.catInited = '1';
+    w.addEventListener('click', function(e) {
+      var t = e.target;
+      while (t && t !== w) {
+        if (t.id === 'cat-scroll-prev') { s.scrollBy({ left: -s.clientWidth * 0.6, behavior: 'smooth' }); return; }
+        if (t.id === 'cat-scroll-next') { s.scrollBy({ left: s.clientWidth * 0.6, behavior: 'smooth' }); return; }
+        t = t.parentElement;
+      }
+    });
+    s.addEventListener('scroll', function() {
+      var p = document.getElementById('cat-scroll-prev');
+      var n = document.getElementById('cat-scroll-next');
       if (!p || !n) return;
       var o = s.scrollWidth > s.clientWidth;
       p.style.display = o ? '' : 'none';
@@ -186,18 +198,15 @@ function pageRange(): (number | '...')[] {
       if (!o) return;
       p.style.opacity = s.scrollLeft <= 8 ? '0.3' : '1';
       n.style.opacity = s.scrollLeft + s.clientWidth >= s.scrollWidth - 8 ? '0.3' : '1';
-    }
-    if (p) p.addEventListener('click', function() { s.scrollBy({ left: -s.clientWidth * 0.6, behavior: 'smooth' }); });
-    if (n) n.addEventListener('click', function() { s.scrollBy({ left: s.clientWidth * 0.6, behavior: 'smooth' }); });
-    s.addEventListener('scroll', u, { passive: true });
-    u();
-    if (p && s.scrollWidth > s.clientWidth) {
+    }, { passive: true });
+    s.dispatchEvent(new Event('scroll'));
+    if (s.scrollWidth > s.clientWidth) {
       var active = s.querySelector('[style*="font-weight:600"]');
       if (active) {
-        var parent = active.closest('a');
-        if (parent) setTimeout(function() { parent.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' }); }, 100);
+        var a = active.closest('a');
+        if (a) setTimeout(function() { a.scrollIntoView({ block: 'nearest', inline: 'start' }); }, 100);
       }
     }
-  })();
+  });
 </script>
 

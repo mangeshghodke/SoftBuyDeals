@@ -166,7 +166,10 @@ const catItems: CatItem[] = categories.map((cat, i) => {
 </BaseLayout>
 
 <script>
-  (function() {
+  document.addEventListener('astro:page-load', function() {
+    var carousel = document.getElementById('category-carousel');
+    if (!carousel || carousel.dataset.catInited) return;
+    carousel.dataset.catInited = '1';
     var track = document.getElementById('category-track');
     if (!track) return;
     var prevBtn = document.getElementById('cat-prev');
@@ -213,5 +216,5 @@ const catItems: CatItem[] = categories.map((cat, i) => {
       }, { passive: true });
     }
     goTo(0);
-  })();
+  });
 </script>
