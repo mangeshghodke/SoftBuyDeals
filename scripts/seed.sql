@@ -1,10 +1,3 @@
-CREATE TABLE IF NOT EXISTS price_history (
-  id TEXT PRIMARY KEY,
-  product_id TEXT NOT NULL,
-  price TEXT NOT NULL,
-  created_at TEXT NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS products (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
