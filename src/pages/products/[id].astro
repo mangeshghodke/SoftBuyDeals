@@ -167,7 +167,7 @@ const productSchema = {
                 Price Trend
               </h2>
               <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 sm:p-4">
-                <div id="priceChart" style="min-height:300px"></div>
+                <div id="priceChart" style="min-height:380px"></div>
               </div>
               <p class="mt-1.5 text-xs text-slate-400">Updated daily via automated price check</p>
             </div>
@@ -186,15 +186,15 @@ const productSchema = {
     if (!el) return;
     const d = JSON.parse(document.getElementById('chart-data').textContent);
     const opts = {
-      chart: { type: 'line', toolbar: { show: false }, fontFamily: 'inherit' },
+      chart: { type: 'line', toolbar: { show: false }, fontFamily: 'inherit', height: 360 },
       series: [{ name: 'Price', data: d.prices }],
-      xaxis: { categories: d.cats, labels: { style: { colors: '#94a3b8', fontSize: '11px' } }, axisBorder: { show: false }, axisTicks: { show: false } },
-      yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px' }, formatter: v => '₹' + v.toLocaleString('en-IN') } },
-      grid: { borderColor: 'rgba(148,163,184,0.15)' },
-      stroke: { curve: 'smooth', width: 2, colors: ['#6366f1'] },
-      fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0, stops: [0, 100] } },
-      markers: { size: 4, colors: ['#6366f1'], strokeColors: '#fff', strokeWidth: 2 },
-      tooltip: { theme: 'dark', y: { formatter: v => '₹' + v.toLocaleString('en-IN') } },
+      xaxis: { categories: d.cats, labels: { style: { colors: '#64748b', fontSize: '13px', fontWeight: 500 }, rotate: -45, rotateAlways: d.cats.length > 6, hideOverlappingLabels: false }, axisBorder: { show: false }, axisTicks: { show: false } },
+      yaxis: { labels: { style: { colors: '#64748b', fontSize: '13px', fontWeight: 500 }, formatter: v => '₹' + v.toLocaleString('en-IN'), offsetX: -4 } },
+      grid: { borderColor: 'rgba(148,163,184,0.12)', padding: { left: 10, right: 10 } },
+      stroke: { curve: 'smooth', width: 3, colors: ['#6366f1'] },
+      fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0, stops: [0, 100] } },
+      markers: { size: 5, colors: ['#6366f1'], strokeColors: '#fff', strokeWidth: 2, hover: { size: 7 } },
+      tooltip: { theme: 'dark', y: { formatter: v => '₹' + v.toLocaleString('en-IN') }, style: { fontSize: '13px' } },
       dataLabels: { enabled: false },
     };
     const chart = new ApexCharts(el, opts);
