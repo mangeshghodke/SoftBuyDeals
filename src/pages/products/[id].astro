@@ -219,9 +219,13 @@ const productSchema = {
       try {
         const res = await fetch('/api/check-price/' + productId, { method: 'POST' });
         const data = await res.json();
-        if (res.ok) {
+        if (data.price) {
           btn.textContent = '✓ Price Updated!';
           setTimeout(() => location.reload(), 1500);
+        } else if (data.notice) {
+          btn.textContent = data.error || 'Failed';
+          btn.title = data.notice;
+          setTimeout(() => { btn.disabled = false; btn.innerHTML = 'Check Price on Amazon'; }, 4000);
         } else {
           btn.textContent = data.error || 'Failed to check price';
           setTimeout(() => { btn.disabled = false; btn.innerHTML = 'Check Price on Amazon'; }, 3000);
