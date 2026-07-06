@@ -5,7 +5,7 @@ import { validateSession } from './lib/session';
 const ADMIN_ROUTES = ['/admin/dashboard', '/admin/products'];
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+  "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: https:",
   "font-src 'self' https://fonts.gstatic.com",
