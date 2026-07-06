@@ -5,11 +5,15 @@ import { getProducts } from '../../lib/data';
 import { getCsrfToken } from '../../lib/session';
 
 const db = env.DB;
-const products = await getProducts(db);
+const allProducts = await getProducts(db);
 const stats = {
-  total: products.length,
-  categories: [...new Set(products.map(p => p.category))].length,
+  total: allProducts.length,
+  categories: [...new Set(allProducts.map(p => p.category))].length,
 };
+const PER_PAGE = 20;
+const currentPage = Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1'));
+const totalPages = Math.max(1, Math.ceil(allProducts.length / PER_PAGE));
+const products = allProducts.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
 const secret = env.SESSION_SECRET as string;
 const sessionToken = Astro.cookies.get('session')?.value || '';
@@ -77,6 +81,7 @@ const csrfToken = sessionToken ? getCsrfToken(sessionToken, secret) : '';
             </a>
           </div>
         ) : (
+          <>
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-slate-50 dark:bg-slate-900/50">
@@ -142,6 +147,38 @@ const csrfToken = sessionToken ? getCsrfToken(sessionToken, secret) : '';
               </tbody>
             </table>
           </div>
+          {totalPages > 1 && (
+            <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+              <p class="text-sm text-slate-500 dark:text-slate-400">
+                Page {currentPage} of {totalPages} ({allProducts.length} total)
+              </p>
+              <div class="flex gap-1">
+                {currentPage > 1 && (
+                  <a
+                    href={`/admin/dashboard/?page=${currentPage - 1}`}
+                    class="px-3 py-1.5 text-sm rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >Prev</a>
+                )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <a
+                    href={`/admin/dashboard/?page=${p}`}
+                    class={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      p === currentPage
+                        ? 'bg-primary-600 text-white'
+                        : 'border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >{p}</a>
+                ))}
+                {currentPage < totalPages && (
+                  <a
+                    href={`/admin/dashboard/?page=${currentPage + 1}`}
+                    class="px-3 py-1.5 text-sm rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >Next</a>
+                )}
+              </div>
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>
