@@ -22,6 +22,20 @@ function getRatingPercent(rating: string): number {
 
 const productURL = `${SITE_URL.replace(/\/$/, '')}/products/${product.id}/`;
 
+const ogPrice = product.price?.trim() || '';
+const ogOriginal = product.originalPrice?.trim() || '';
+let ogSavings = '';
+if (ogPrice && ogOriginal) {
+  const curr = parseFloat(ogPrice.replace(/[₹,]/g, ''));
+  const orig = parseFloat(ogOriginal.replace(/[₹,]/g, ''));
+  if (curr && orig && orig > curr) {
+    const pct = Math.round((1 - curr / orig) * 100);
+    ogSavings = ` — Save ${pct}%!`;
+  }
+}
+const ogCategory = product.category ? ` [${product.category}]` : '';
+const ogDesc = `${ogPrice}${ogOriginal ? ` (was ${ogOriginal})` : ''}${ogSavings}${ogCategory}`;
+
 const productSchema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
@@ -46,7 +60,7 @@ const productSchema = {
 };
 ---
 
-<BaseLayout title={product.title} description={product.description?.slice(0, 160)} image={product.imageUrl || undefined}>
+<BaseLayout title={product.title} description={ogDesc} image={product.imageUrl || undefined} imageWidth="800" imageHeight="800">
   <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
   <section class="py-8 md:py-16">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
