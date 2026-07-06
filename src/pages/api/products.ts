@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { validateSession, validateCsrfToken } from '../../lib/session';
-import { getProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../../lib/data';
+import { getProducts, getProductById, createProduct, updateProduct, deleteProduct, recordPrice } from '../../lib/data';
 import type { Product } from '../../lib/data';
 import { notifyProduct } from '../../lib/telegram';
 import { postThread } from '../../lib/threads';
@@ -123,6 +123,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
       if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
     }
     await updateProduct(db, existingId, updated);
+    if (fields.price) await recordPrice(db, existingId, fields.price);
 
     if (isJson) {
       return new Response(JSON.stringify({ ...existing, ...updated }), {
@@ -147,6 +148,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
   };
 
   await createProduct(db, newProduct);
+  if (newProduct.price) await recordPrice(db, newProduct.id, newProduct.price);
 
   const ctx = (locals as any).cfContext;
   const notifications = Promise.all([
@@ -237,6 +239,7 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
     if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
   }
   await updateProduct(db, id, updated);
+  if (fields.price) await recordPrice(db, id, fields.price);
 
   if (isJson) {
     return new Response(JSON.stringify({ ...existing, ...updated }), {
