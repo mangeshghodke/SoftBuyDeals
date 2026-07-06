@@ -180,10 +180,8 @@ function pageRange(): (number | '...')[] {
     var prevBtn = document.getElementById('products-cat-prev');
     var nextBtn = document.getElementById('products-cat-next');
     var dots = document.querySelectorAll('.products-cat-dot');
-    var totalItems = track.children.length;
-    if (totalItems <= 4) return;
     var page = 0;
-    var totalPages = Math.ceil(totalItems / 4);
+    var totalPages = Math.ceil(track.children.length / 4);
     function goTo(p) {
       if (p < 0) p = totalPages - 1;
       if (p >= totalPages) p = 0;
