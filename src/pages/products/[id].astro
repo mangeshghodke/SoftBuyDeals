@@ -47,6 +47,7 @@ const chartCategories = priceHistory.map(p => {
   return `${d.getDate()}/${d.getMonth() + 1}`;
 });
 const chartPrices = priceHistory.map(p => parseFloat(p.price.replace(/[₹,]/g, '')));
+const chartDataJson = JSON.stringify({ cats: chartCategories, prices: chartPrices });
 
 const productSchema = {
   '@context': 'https://schema.org',
@@ -178,7 +179,7 @@ const productSchema = {
   </section>
  </BaseLayout>
 
-<script type="application/json" id="chart-data">{JSON.stringify({ cats: chartCategories, prices: chartPrices })}</script>
+<script type="application/json" id="chart-data" set:html={chartDataJson}></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
