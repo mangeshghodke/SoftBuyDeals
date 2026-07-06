@@ -158,23 +158,31 @@ function pageRange(): (number | '...')[] {
     var next = document.getElementById('cat-scroll-next');
     function update() {
       if (!prev || !next) return;
-      var atStart = scroll.scrollLeft <= 10;
-      var atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 10;
-      prev.style.display = atStart && scroll.scrollWidth <= scroll.clientWidth ? 'none' : '';
+      var canScroll = scroll.scrollWidth > scroll.clientWidth;
+      if (!canScroll) {
+        prev.style.display = 'none';
+        next.style.display = 'none';
+        return;
+      }
+      prev.style.display = '';
+      next.style.display = '';
+      var atStart = scroll.scrollLeft <= 5;
+      var atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 5;
       prev.style.opacity = atStart ? '0.3' : '1';
-      next.style.display = atEnd && scroll.scrollWidth <= scroll.clientWidth ? 'none' : '';
+      prev.style.pointerEvents = atStart ? 'none' : 'auto';
       next.style.opacity = atEnd ? '0.3' : '1';
+      next.style.pointerEvents = atEnd ? 'none' : 'auto';
     }
     if (prev) prev.addEventListener('click', function() {
-      scroll.scrollBy({ left: -scroll.clientWidth * 0.7, behavior: 'smooth' });
+      scroll.scrollLeft -= scroll.clientWidth * 0.7;
     });
     if (next) next.addEventListener('click', function() {
-      scroll.scrollBy({ left: scroll.clientWidth * 0.7, behavior: 'smooth' });
+      scroll.scrollLeft += scroll.clientWidth * 0.7;
     });
-    scroll.addEventListener('scroll', update);
+    scroll.addEventListener('scroll', update, { passive: true });
     update();
     var active = scroll.querySelector('a[style*="font-weight:600"]');
-    if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    if (active) active.scrollIntoView({ block: 'nearest', inline: 'start' });
   })();
 </script>
 
