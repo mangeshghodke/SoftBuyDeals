@@ -179,14 +179,11 @@ const productSchema = {
 </BaseLayout>
 
 <script type="application/json" id="chart-data">{JSON.stringify(chartData)}</script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('priceChart');
-    if (!canvas) return;
     const data = JSON.parse(document.getElementById('chart-data').textContent);
-    const ctx = canvas.getContext('2d');
-    new Chart(ctx, {
+    new Chart("priceChart", {
       type: 'line',
       data: {
         labels: data.map(d => d.date),
