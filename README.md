@@ -31,7 +31,6 @@ The admin panel lets you add products — optionally auto-fetched from Amazon UR
 - 🤖 **Auto-posting** to **Telegram channel** (photo + caption + inline keyboard)
 - 📱 **Auto-posting** to **Threads (Meta)** (image + structured caption)
 - 👁️ **Visitor counter** (D1-persisted)
-- 📈 **Price trend chart** (ApexCharts SVG) on product detail pages
 - 📄 **Contact form** via Resend API
 - 🔍 **SEO optimized** — JSON-LD schema, sitemap.xml, OG/Twitter cards
 - ⚡ **No client-side framework** — vanilla JS only, minimal payload
@@ -53,7 +52,6 @@ The admin panel lets you add products — optionally auto-fetched from Amazon UR
 | Email | [Resend](https://resend.com) API |
 | Notifications | [Telegram Bot API](https://core.telegram.org/bots/api) |
 | Social | [Threads (Meta) Graph API](https://developers.facebook.com/docs/threads) |
-| Charts | [ApexCharts](https://apexcharts.com) (SVG line chart on product pages) |
 | CI/CD | GitHub Actions → `wrangler deploy` |
 | Adapter | `@astrojs/cloudflare@^13.7.0` |
 
@@ -125,8 +123,8 @@ src/
 │   ├── telegram.ts  # notifyProduct() → Telegram channel
 │   └── threads.ts   # postThread() → Meta Threads
 ├── pages/
-│   ├── index.astro  # Home hero (Browse Products + Join Telegram)
-│   ├── products/    # Grid with pagination + [id] detail page
+│   ├── index.astro  # Home hero + category carousel
+│   ├── products/    # Grid with pagination + category scroll
 │   ├── admin/       # Dashboard (login, product CRUD)
 │   ├── api/         # Products REST, contact, counter, login, fetch-amazon
 │   └── sitemap.xml.ts
