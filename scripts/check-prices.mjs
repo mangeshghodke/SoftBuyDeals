@@ -9,19 +9,50 @@ if (!CRON_SECRET) {
 }
 
 const headers = { 'Authorization': `Bearer ${CRON_SECRET}`, 'Content-Type': 'application/json' };
+function extractAsin(url) {
+  const m = url.match(/\/dp\/([A-Z0-9]{10})/);
+  return m ? m[1] : null;
+}
+
+function isCaptchaPage(html) {
+  const lower = html.toLowerCase();
+  const antiBot = [
+    'sorry, we just need to make sure',
+    'enter the characters you see',
+    'type the characters you see',
+    'please verify you\'re a human',
+    'please verify you are a human',
+    'to discuss automated access',
+    'automated access to amazon',
+    'are you a robot',
+    'robot check',
+    'your request has been blocked',
+    'something about your browser',
+    'enable javascript to continue',
+    'captcha-bot',
+  ];
+  for (const phrase of antiBot) {
+    if (lower.includes(phrase)) return true;
+  }
+  return false;
+}
+
 const userAgents = [
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
 ];
 
 async function fetchPrice(url) {
+  const asin = extractAsin(url);
+  const fetchUrl = asin ? `https://www.amazon.in/dp/${asin}` : url;
+
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 10000);
 
-      const response = await fetch(url, {
+      const response = await fetch(fetchUrl, {
         signal: controller.signal,
         headers: {
           'User-Agent': userAgents[attempt % userAgents.length],
@@ -29,20 +60,20 @@ async function fetchPrice(url) {
           'Accept-Language': 'en-IN,en-GB;q=0.9,en;q=0.8,hi;q=0.7',
           'Accept-Encoding': 'gzip, deflate, br',
           'DNT': '1',
-          'Connection': 'keep-alive',
           'Upgrade-Insecure-Requests': '1',
+          'Cache-Control': 'max-age=0',
           'Sec-Fetch-Dest': 'document',
           'Sec-Fetch-Mode': 'navigate',
           'Sec-Fetch-Site': 'none',
           'Sec-Fetch-User': '?1',
-          'Cache-Control': 'max-age=0',
         }
       });
       clearTimeout(timeout);
       if (!response.ok) continue;
 
       const html = await response.text();
-      if (!html || html.length < 1000 || html.includes('captcha') || html.includes('verify')) continue;
+      if (!html || html.length < 1000) continue;
+      if (isCaptchaPage(html)) continue;
 
       const $ = cheerio.load(html);
       const price = $('.a-price .a-offscreen').first().text().trim()
