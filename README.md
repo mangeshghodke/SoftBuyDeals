@@ -148,9 +148,6 @@ scripts/
 ### Threads (Meta)
 `src/lib/threads.ts` — Posts product image + structured caption (✅ offer price, ❌ MRP, 🔥 savings, hashtags) to Threads via Meta Graph API v1.0.
 
-### ApexCharts
-`src/pages/products/[id].astro` — Interactive SVG line chart showing product price history with gradient fill, axis labels, and dark-themed tooltips. Data fetched from `price_history` D1 table and embedded as JSON.
-
 ### Background Notifications
 Product creation triggers Telegram + Threads via `cfContext.waitUntil()` — the HTTP response returns instantly while notifications run in background.
 
