@@ -65,7 +65,7 @@ async function apiFetch(
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(30000),
   });
 }
 
@@ -73,24 +73,17 @@ export async function postThread(
   product: Product,
   accessToken: string,
   userId: string,
-): Promise<boolean> {
-  try {
-    const text = buildCaption(product);
-    const params: Record<string, string> = {
-      media_type: 'TEXT',
-      text,
-    };
+): Promise<{ ok: boolean; error?: string }> {
+  const text = buildCaption(product);
 
-    if (product.imageUrl?.startsWith('http')) {
-      params.media_type = 'IMAGE';
-      params.image_url = product.imageUrl;
-    }
+  async function tryPost(mediaType: 'TEXT' | 'IMAGE', imageUrl?: string): Promise<{ ok: boolean; error?: string }> {
+    const params: Record<string, string> = { media_type: mediaType, text };
+    if (imageUrl) params.image_url = imageUrl;
 
     const createRes = await apiFetch(`${userId}/threads`, params, accessToken);
     if (!createRes.ok) {
       const err = await createRes.text();
-      console.error('Threads: create container failed:', err);
-      return false;
+      return { ok: false, error: `create container (${mediaType}): ${err}` };
     }
 
     const { id: creationId } = await createRes.json() as { id: string };
@@ -103,14 +96,19 @@ export async function postThread(
 
     if (!publishRes.ok) {
       const err = await publishRes.text();
-      console.error('Threads: publish failed:', err);
-      return false;
+      return { ok: false, error: `publish (${mediaType}): ${err}` };
     }
 
-    console.log(`Threads: posted ${creationId}`);
-    return true;
-  } catch (err) {
-    console.error('Threads: error:', err);
-    return false;
+    console.log(`Threads: posted ${creationId} (${mediaType})`);
+    return { ok: true };
   }
+
+  // Try IMAGE first if product has an image; fall back to TEXT on failure
+  if (product.imageUrl?.startsWith('http')) {
+    const result = await tryPost('IMAGE', product.imageUrl);
+    if (result.ok) return result;
+    console.error('Threads: IMAGE attempt failed, falling back to TEXT:', result.error);
+  }
+
+  return tryPost('TEXT');
 }
