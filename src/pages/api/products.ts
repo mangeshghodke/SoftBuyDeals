@@ -38,6 +38,7 @@ function validateProductInput(data: Record<string, string | undefined>): string[
   if (data.category && data.category.trim().length === 0) errors.push('Category cannot be empty');
   if (data.rating && data.rating.length > 50) errors.push('Rating too long');
   if (data.description && data.description.length > 2000) errors.push('Description exceeds 2000 characters');
+  if (data.coupon && data.coupon.length > 200) errors.push('Coupon info too long');
   return errors;
 }
 
@@ -95,6 +96,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
     description: formData.get('description')?.toString(),
     rating: formatRating(rawRating),
     category: formData.get('category')?.toString(),
+    coupon: formData.get('coupon')?.toString(),
   };
 
   const errors = validateProductInput(fields);
@@ -119,7 +121,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
     }
 
     const updated: Partial<Product> = {};
-    for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category'] as const) {
+    for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category', 'coupon'] as const) {
       if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
     }
     await updateProduct(db, existingId, updated);
@@ -143,6 +145,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
     description: fields.description || '',
     rating: fields.rating || '',
     category: fields.category || 'Uncategorized',
+    coupon: fields.coupon || '',
     createdAt: new Date().toISOString(),
   };
 
@@ -220,6 +223,7 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
     description: formData.get('description')?.toString(),
     rating: formatRating(rawRating),
     category: formData.get('category')?.toString(),
+    coupon: formData.get('coupon')?.toString(),
   };
 
   const errors = validateProductInput(fields);
@@ -233,7 +237,7 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
   }
 
   const updated: Partial<Product> = {};
-  for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category'] as const) {
+  for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category', 'coupon'] as const) {
     if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
   }
   await updateProduct(db, id, updated);
