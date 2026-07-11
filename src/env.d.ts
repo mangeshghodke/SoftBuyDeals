@@ -10,5 +10,7 @@ declare module 'cloudflare:workers' {
     RESEND_API_KEY: string;
     TELEGRAM_BOT_TOKEN: string;
     TELEGRAM_CHANNEL_ID: string;
+    THREADS_ACCESS_TOKEN: string;
+    THREADS_USER_ID: string;
   };
 }

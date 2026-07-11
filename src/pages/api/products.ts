@@ -4,7 +4,7 @@ import { validateSession, validateCsrfToken } from '../../lib/session';
 import { getProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../../lib/data';
 import type { Product } from '../../lib/data';
 import { notifyProduct } from '../../lib/telegram';
-
+import { postThread } from '../../lib/threads';
 function isFormSubmit(request: Request): boolean {
   return request.headers.get('Accept') !== 'application/json';
 }
@@ -153,7 +153,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
   const ctx = (locals as any).cfContext;
   const notifications = Promise.all([
     notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string),
-
+    ...(env.THREADS_ACCESS_TOKEN && env.THREADS_USER_ID
+      ? [postThread(newProduct, env.THREADS_ACCESS_TOKEN as string, env.THREADS_USER_ID as string)]
+      : []),
   ]);
   if (ctx?.waitUntil) {
     ctx.waitUntil(notifications);

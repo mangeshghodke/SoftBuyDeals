@@ -18,7 +18,7 @@
 
 **SoftBuyDeals** is a modern Amazon affiliate website that curates the best deals on Amazon.in. Built with **Astro v6** (SSR) and **Tailwind CSS v4**, hosted on **Cloudflare Workers** with a **D1** serverless database.
 
-The admin panel lets you add products — optionally auto-fetched from Amazon URLs — and product posts are automatically shared to **Telegram**.
+The admin panel lets you add products — optionally auto-fetched from Amazon URLs — and product posts are automatically shared to **Telegram** and **Threads (Meta)**.
 
 ---
 
@@ -29,7 +29,7 @@ The admin panel lets you add products — optionally auto-fetched from Amazon UR
 - 🔐 **Admin dashboard** with JWT auth, CSRF protection, scrypt password hashing
 - 🛍️ **Amazon scraper** — paste an Amazon URL, auto-fill product details
 - 🤖 **Auto-posting** to **Telegram channel** (photo + caption + inline keyboard)
-- 📱 **Auto-posting** to **Telegram** (image + structured caption)
+- 📱 **Auto-posting** to **Threads (Meta)** (image + structured caption)
 - 👁️ **Visitor counter** (D1-persisted)
 - 📄 **Contact form** via Resend API
 - 🔍 **SEO optimized** — JSON-LD schema, sitemap.xml, OG/Twitter cards
@@ -51,6 +51,7 @@ The admin panel lets you add products — optionally auto-fetched from Amazon UR
 | Database | [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite) |
 | Email | [Resend](https://resend.com) API |
 | Notifications | [Telegram Bot API](https://core.telegram.org/bots/api) |
+| Social | [Threads (Meta) Graph API](https://developers.facebook.com/docs/threads) |
 | CI/CD | GitHub Actions → `wrangler deploy` |
 | Adapter | `@astrojs/cloudflare@^13.7.0` |
 
@@ -81,6 +82,8 @@ wrangler secret put SESSION_SECRET
 wrangler secret put RESEND_API_KEY
 wrangler secret put TELEGRAM_BOT_TOKEN
 wrangler secret put TELEGRAM_CHANNEL_ID   # e.g. @softbuydeals
+wrangler secret put THREADS_ACCESS_TOKEN  # Meta long-lived page token
+wrangler secret put THREADS_USER_ID
 ```
 
 ### Seed Database
@@ -118,7 +121,7 @@ src/
 │   ├── session.ts   # JWT + CSRF helpers
 │   ├── rate-limit.ts# D1-backed rate limiting
 │   ├── telegram.ts   # notifyProduct() → Telegram channel
-│   └── rate-limit.ts # D1-backed rate limiting
+│   └── threads.ts    # postThread() → Meta Threads
 ├── pages/
 │   ├── index.astro  # Home hero + category carousel
 │   ├── products/    # Grid with pagination + category scroll
@@ -140,8 +143,11 @@ scripts/
 ### Telegram
 `src/lib/telegram.ts` — Sends product photo + HTML caption (title, offer price, MRP strikethrough, savings %, inline keyboard button) to the configured Telegram channel on product creation.
 
+### Threads (Meta)
+`src/lib/threads.ts` — Posts product image → fallback to text with structured caption (✅ offer price, ❌ MRP, 🔥 savings, hashtags) to Threads via Meta Graph API v1.0.
+
 ### Background Notifications
-Product creation triggers Telegram via `cfContext.waitUntil()` — the HTTP response returns instantly while notifications run in background.
+Product creation triggers Telegram + Threads via `cfContext.waitUntil()` — the HTTP response returns instantly while notifications run in background.
 
 ---
 
