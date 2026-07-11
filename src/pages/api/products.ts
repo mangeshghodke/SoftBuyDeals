@@ -154,7 +154,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
   const notifications = Promise.all([
     notifyProduct(newProduct, env.TELEGRAM_BOT_TOKEN as string, env.TELEGRAM_CHANNEL_ID as string),
     ...(env.THREADS_ACCESS_TOKEN && env.THREADS_USER_ID
-      ? [postThread(newProduct, env.THREADS_ACCESS_TOKEN as string, env.THREADS_USER_ID as string)]
+      ? [postThread(newProduct, env.THREADS_ACCESS_TOKEN as string, env.THREADS_USER_ID as string, db)]
       : []),
   ]);
   if (ctx?.waitUntil) {

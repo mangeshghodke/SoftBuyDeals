@@ -114,5 +114,25 @@ export async function incrementCounter(db: any): Promise<number> {
   return (row?.count as number) || 0;
 }
 
+let _settingsInit = false;
+
+async function ensureSettingsTable(db: any): Promise<void> {
+  if (!_settingsInit) {
+    await db.prepare(`CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)`).run();
+    _settingsInit = true;
+  }
+}
+
+export async function getSetting(db: any, key: string): Promise<string | undefined> {
+  await ensureSettingsTable(db);
+  const row = await db.prepare('SELECT value FROM settings WHERE key = ?').bind(key).first();
+  return row?.value as string | undefined;
+}
+
+export async function setSetting(db: any, key: string, value: string): Promise<void> {
+  await ensureSettingsTable(db);
+  await db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').bind(key, value).run();
+}
+
 
 
