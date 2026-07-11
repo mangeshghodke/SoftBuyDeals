@@ -43,6 +43,8 @@ function buildCaption(product: Product): string {
   parts.push(`${SITE_URL.replace(/\/$/, '')}/products/${product.id}/`);
 
   parts.push('');
+  parts.push(`Join our Telegram channel for more deals: https://t.me/softbuydeals`);
+  parts.push('');
   parts.push('#softbuydeals #amazonfinds #deals');
 
   return parts.join('\n');
