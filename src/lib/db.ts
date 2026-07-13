@@ -123,6 +123,16 @@ async function ensureSettingsTable(db: any): Promise<void> {
   }
 }
 
+export function generateShortId(length = 8): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const array = crypto.getRandomValues(new Uint8Array(length));
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars[array[i] % chars.length];
+  }
+  return result;
+}
+
 export async function getSetting(db: any, key: string): Promise<string | undefined> {
   await ensureSettingsTable(db);
   const row = await db.prepare('SELECT value FROM settings WHERE key = ?').bind(key).first();

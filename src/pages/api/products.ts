@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { validateSession, validateCsrfToken } from '../../lib/session';
-import { getProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../../lib/data';
+import { getProducts, getProductById, createProduct, updateProduct, deleteProduct, generateShortId } from '../../lib/data';
 import type { Product } from '../../lib/data';
 import { notifyProduct } from '../../lib/telegram';
 import { postThread } from '../../lib/threads';
@@ -133,8 +133,19 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
     return redirect('/admin/dashboard/');
   }
 
+  let shortId: string;
+  for (let attempts = 0; attempts < 5; attempts++) {
+    shortId = generateShortId();
+    const existing = await db.prepare('SELECT id FROM products WHERE id = ?').bind(shortId).first();
+    if (!existing) break;
+    if (attempts === 4) {
+      return new Response(JSON.stringify({ error: 'Could not generate unique ID' }), {
+        status: 500, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+  }
   const newProduct: Product = {
-    id: crypto.randomUUID(),
+    id: shortId!,
     title: fields.title || '',
     price: fields.price || '',
     originalPrice: fields.originalPrice || '',

@@ -42,7 +42,7 @@ function buildCaption(product: Product): string {
 
   parts.push('');
 
-  parts.push(`${SITE_URL.replace(/\/$/, '')}/products/${product.id}/`);
+  parts.push(`${SITE_URL.replace(/\/$/, '')}/p/${product.id}/`);
 
   parts.push('');
   parts.push(`Join our Telegram channel for more deals: https://t.me/softbuydeals`);

@@ -32,7 +32,7 @@ export const GET: APIRoute = async () => {
   const entries = [
     ...staticEntries,
     ...products.map((product) => ({
-      path: `/products/${product.id}/`,
+      path: `/p/${product.id}/`,
       lastmod: product.createdAt ? new Date(product.createdAt) : undefined,
     })),
   ];
