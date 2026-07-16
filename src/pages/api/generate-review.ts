@@ -10,9 +10,22 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const systemPrompt = 'You are a helpful product reviewer who writes compelling Amazon product recommendations. Use "we" and "our" voice (e.g. "We recommend...", "We think..."). Do not mention specific technical specifications you are unsure about. Keep it persuasive but honest. Output only bullet points, one per line, starting with "- ".';
+  const systemPrompt = 'You output ONLY bullet points starting with "- ". Never write paragraphs or sentences. Each bullet is one short line.';
 
-  const userPrompt = `Write a product review as 5-6 bullet points for this product:\n\nTitle: ${title}\nCategory: ${category || 'General'}\n\nEach bullet point should highlight a reason someone would want to buy it. Keep claims general enough to be plausible. Do not mention specific specs like battery life, camera megapixels, processor speed, or dimensions unless obvious from the title. Focus on quality, value, design, and user experience. Use "- " at the start of each line. No paragraphs or extra text before or after the list.`;
+  const userPrompt = `List 5 reasons to buy this product. Each reason must start with "- " and be on its own line.
+No paragraphs. No sentences before or after the list. Only bullet points.
+Title: ${title}
+Category: ${category || 'General'}
+Use "we" voice (e.g. "We recommend", "We think").
+Keep claims general. No specific specs unless obvious from the title.
+Focus on quality, value, design, user experience.
+
+Example format:
+- We recommend this for its excellent build quality.
+- The design is sleek and modern.
+- It offers great value for the price.
+- We think the user experience is outstanding.
+- This is a reliable choice for everyday use.`;
 
   try {
     const ai = env.AI as any;
