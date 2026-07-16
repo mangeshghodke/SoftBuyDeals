@@ -41,7 +41,8 @@ export async function notifyProduct(
     lines.push(`📂 <b>Category:</b> ${esc(product.category)}`);
   }
 
-  lines.push(``, `⬇️ Click below to grab the deal!`, `#softbuydeals`);
+  lines.push(``, `As an Amazon Associate I earn from qualifying purchases.`, ``);
+  lines.push(`⬇️ Click below to grab the deal!`, `#softbuydeals #ad`);
 
   const caption = lines.join('\n');
 

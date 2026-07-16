@@ -18,7 +18,7 @@
 
 **SoftBuyDeals** is a modern Amazon affiliate website that curates the best deals on Amazon.in. Built with **Astro v6** (SSR) and **Tailwind CSS v4**, hosted on **Cloudflare Workers** with a **D1** serverless database.
 
-The admin panel lets you add products — optionally auto-fetched from Amazon URLs — and product posts are automatically shared to **Telegram** and **Threads (Meta)**.
+The admin panel lets you add products, and product posts are automatically shared to **Telegram** and **Threads (Meta)**.
 
 ---
 
@@ -126,7 +126,7 @@ src/
 │   ├── index.astro  # Home hero + category carousel
 │   ├── products/    # Grid with pagination + category scroll
 │   ├── admin/       # Dashboard (login, product CRUD)
-│   ├── api/         # Products REST, contact, counter, login, fetch-amazon
+│   ├── api/         # Products REST, contact, counter, login
 │   └── sitemap.xml.ts
 ├── middleware.ts    # Auth guard + security headers
 └── config.ts        # SITE_URL, SOCIAL_LINKS, NAV_LINKS

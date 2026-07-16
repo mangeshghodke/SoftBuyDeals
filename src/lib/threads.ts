@@ -22,7 +22,7 @@ function buildCaption(product: Product): string {
   parts.push('');
   parts.push(`Join our Telegram channel for more deals: https://t.me/softbuydeals`);
   parts.push('');
-  parts.push('#softbuydeals #amazonfinds #deals');
+  parts.push('#softbuydeals #amazonfinds #deals #ad');
 
   return parts.join('\n');
 }
