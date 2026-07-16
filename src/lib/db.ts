@@ -1,6 +1,6 @@
 export interface Product {
   id: string; title: string; price: string; originalPrice: string;
-  imageUrl: string; amazonUrl: string; affiliateUrl: string;
+  imageUrl: string; imageUrl2: string; imageUrl3: string; amazonUrl: string; affiliateUrl: string;
   description: string; rating: string; category: string; coupon: string; review: string; createdAt: string;
 }
 
@@ -11,6 +11,8 @@ function rowToProduct(row: Record<string, unknown>): Product {
     price: row.price as string,
     originalPrice: row.originalPrice as string,
     imageUrl: row.imageUrl as string,
+    imageUrl2: (row as any).imageUrl2 as string || '',
+    imageUrl3: (row as any).imageUrl3 as string || '',
     amazonUrl: row.amazonUrl as string,
     affiliateUrl: row.affiliateUrl as string,
     description: row.description as string,
@@ -45,6 +47,8 @@ async function ensureTable(db: any): Promise<void> {
     `).run();
     try { await db.prepare("ALTER TABLE products ADD COLUMN coupon TEXT NOT NULL DEFAULT ''").run(); } catch {}
     try { await db.prepare("ALTER TABLE products ADD COLUMN review TEXT NOT NULL DEFAULT ''").run(); } catch {}
+    try { await db.prepare("ALTER TABLE products ADD COLUMN imageUrl2 TEXT NOT NULL DEFAULT ''").run(); } catch {}
+    try { await db.prepare("ALTER TABLE products ADD COLUMN imageUrl3 TEXT NOT NULL DEFAULT ''").run(); } catch {}
     _initialized = true;
   }
 }
@@ -64,11 +68,11 @@ export async function getProductById(db: any, id: string): Promise<Product | und
 export async function createProduct(db: any, product: Product): Promise<void> {
   await ensureTable(db);
   await db.prepare(`
-    INSERT INTO products (id, title, price, originalPrice, imageUrl, amazonUrl, affiliateUrl, description, rating, category, coupon, review, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO products (id, title, price, originalPrice, imageUrl, imageUrl2, imageUrl3, amazonUrl, affiliateUrl, description, rating, category, coupon, review, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     product.id, product.title, product.price, product.originalPrice,
-    product.imageUrl, product.amazonUrl, product.affiliateUrl,
+    product.imageUrl, product.imageUrl2 || '', product.imageUrl3 || '', product.amazonUrl, product.affiliateUrl,
     product.description, product.rating, product.category, product.coupon, product.review, product.createdAt
   ).run();
 }

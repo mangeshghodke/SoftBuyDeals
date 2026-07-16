@@ -77,10 +77,21 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
           </div>
 
           <div class="md:col-span-2">
-            <label for="imageUrl" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Image URL</label>
-            <input id="imageUrl" name="imageUrl" type="url" value={product.imageUrl}
-              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-            />
+            <label class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Image URLs (up to 3)</label>
+            <div class="space-y-3">
+              <input id="imageUrl" name="imageUrl" type="url" value={product.imageUrl}
+                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                placeholder="Main image URL"
+              />
+              <input id="imageUrl2" name="imageUrl2" type="url" value={product.imageUrl2}
+                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                placeholder="Additional image URL 2 (optional)"
+              />
+              <input id="imageUrl3" name="imageUrl3" type="url" value={product.imageUrl3}
+                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                placeholder="Additional image URL 3 (optional)"
+              />
+            </div>
           </div>
 
           <div class="md:col-span-2">
@@ -98,7 +109,20 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
           </div>
 
           <div class="md:col-span-2">
-            <label for="review" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Original Review</label>
+            <label for="description" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Product Description (AI-generated)</label>
+            <div class="flex gap-3 items-start">
+              <textarea id="description" name="description" rows="4"
+                class="flex-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white resize-none"
+                placeholder="A compelling description of the product — features, benefits, what makes it great..."
+              >{product.description}</textarea>
+              <button type="button" id="generate-description" class="shrink-0 px-4 py-3 bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-300 rounded-xl text-sm font-medium hover:bg-accent-200 dark:hover:bg-accent-900/50 transition-colors">
+                Generate
+              </button>
+            </div>
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="review" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Why We Recommend This</label>
             <div class="flex gap-3 items-start">
               <textarea id="review" name="review" rows="3"
                 class="flex-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white resize-none"
@@ -122,6 +146,33 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
 
 <script>
   document.addEventListener('astro:page-load', function() {
+    document.getElementById('generate-description')?.addEventListener('click', async function() {
+      var title = document.getElementById('title').value.trim();
+      var category = document.getElementById('category').value.trim();
+      if (!title) { alert('Please fill in the product title first.'); return; }
+      var btn = this;
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
+      try {
+        var res = await fetch('/api/generate-description', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: title, category: category || 'General' })
+        });
+        var data = await res.json();
+        if (data.description) {
+          document.getElementById('description').value = data.description;
+        } else {
+          alert('Failed to generate description. Please try again.');
+        }
+      } catch (e) {
+        alert('Network error. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Generate';
+      }
+    });
+
     document.getElementById('generate-review')?.addEventListener('click', async function() {
       var title = document.getElementById('title').value.trim();
       var category = document.getElementById('category').value.trim();

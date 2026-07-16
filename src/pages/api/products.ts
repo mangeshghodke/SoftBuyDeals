@@ -91,6 +91,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
     price: formData.get('price')?.toString(),
     originalPrice: formData.get('originalPrice')?.toString(),
     imageUrl: formData.get('imageUrl')?.toString(),
+    imageUrl2: formData.get('imageUrl2')?.toString(),
+    imageUrl3: formData.get('imageUrl3')?.toString(),
     amazonUrl: formData.get('amazonUrl')?.toString(),
     affiliateUrl: formData.get('affiliateUrl')?.toString(),
     description: formData.get('description')?.toString(),
@@ -122,7 +124,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
     }
 
     const updated: Partial<Product> = {};
-    for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category', 'coupon', 'review'] as const) {
+    for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'imageUrl2', 'imageUrl3', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category', 'coupon', 'review'] as const) {
       if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
     }
     await updateProduct(db, existingId, updated);
@@ -153,6 +155,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
     price: fields.price || '',
     originalPrice: fields.originalPrice || '',
     imageUrl: fields.imageUrl || '',
+    imageUrl2: fields.imageUrl2 || '',
+    imageUrl3: fields.imageUrl3 || '',
     amazonUrl: fields.amazonUrl || '',
     affiliateUrl: fields.affiliateUrl || '',
     description: fields.description || '',
@@ -232,6 +236,8 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
     price: formData.get('price')?.toString(),
     originalPrice: formData.get('originalPrice')?.toString(),
     imageUrl: formData.get('imageUrl')?.toString(),
+    imageUrl2: formData.get('imageUrl2')?.toString(),
+    imageUrl3: formData.get('imageUrl3')?.toString(),
     amazonUrl: formData.get('amazonUrl')?.toString(),
     affiliateUrl: formData.get('affiliateUrl')?.toString(),
     description: formData.get('description')?.toString(),
@@ -252,7 +258,7 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
   }
 
   const updated: Partial<Product> = {};
-  for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category', 'coupon', 'review'] as const) {
+  for (const key of ['title', 'price', 'originalPrice', 'imageUrl', 'imageUrl2', 'imageUrl3', 'amazonUrl', 'affiliateUrl', 'description', 'rating', 'category', 'coupon', 'review'] as const) {
     if (fields[key]) (updated as Record<string, string>)[key] = fields[key]!;
   }
   await updateProduct(db, id, updated);
