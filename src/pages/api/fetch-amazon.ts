@@ -96,7 +96,7 @@ export const POST: APIRoute = async ({ request, cookies, clientAddress }) => {
     }
 
     const productId = extractAmazonProductId(url);
-    const affiliateUrl = (url.includes('tag=') ? url : url + (url.includes('?') ? '&' : '?') + 'tag=softbuydeal0e-21');
+    const affiliateUrl = (url.includes('tag=') ? url : url + (url.includes('?') ? '&' : '?') + 'tag=softbuydeals01-21');
 
     const html = await fetchWithRetry(url);
 

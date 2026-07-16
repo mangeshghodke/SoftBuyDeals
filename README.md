@@ -175,4 +175,4 @@ Auth: JWT stored in `astro-auth-jwt` cookie + CSRF token via meta tag.
 
 ## 💰 Affiliate Disclaimer
 
-SoftBuyDeals participates in the **Amazon Associates Program**. Product links contain affiliate tracking (`tag=softbuydeal0e-21`), earning a commission from qualifying purchases at **no additional cost** to customers.
+SoftBuyDeals participates in the **Amazon Associates Program**. Product links contain affiliate tracking (`tag=softbuydeals01-21`), earning a commission from qualifying purchases at **no additional cost** to customers.
