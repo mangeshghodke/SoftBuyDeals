@@ -66,8 +66,8 @@ const productSchema = {
           <!-- Image Gallery -->
           {images.length > 0 ? (
             <div>
-              <div class="glass-panel rounded-2xl p-3 sm:p-4 flex items-center justify-center aspect-[4/3] max-h-[400px] mb-4">
-                <img id="main-image" src={images[0]} alt={product.title} fetchpriority="high" class="w-full h-full object-contain max-h-[450px] transition-opacity duration-300" />
+              <div id="image-container" class="glass-panel rounded-2xl p-3 sm:p-4 flex items-center justify-center aspect-[4/3] max-h-[400px] mb-4 cursor-pointer">
+                <img id="main-image" src={images[0]} alt={product.title} fetchpriority="high" class="max-w-full max-h-full object-scale-down transition-opacity duration-300" />
               </div>
               {images.length > 1 && (
                 <div class="flex gap-3 justify-center">
@@ -196,10 +196,44 @@ const productSchema = {
   </section>
 </BaseLayout>
 
+<div id="lightbox" class="fixed inset-0 z-50 bg-black/80 hidden items-center justify-center p-4 cursor-pointer" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="" class="max-w-full max-h-full object-contain cursor-default" onclick="event.stopPropagation()" />
+  <button class="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white text-2xl transition-colors" onclick="closeLightbox()">&times;</button>
+</div>
+
 <script>
   document.addEventListener('astro:page-load', function() {
     var thumbs = document.querySelectorAll('.image-thumb');
     var main = document.getElementById('main-image');
+    var container = document.getElementById('image-container');
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightbox-img');
+
+    function openLightbox(src) {
+      if (lightbox && lightboxImg && src) {
+        lightboxImg.src = src;
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex');
+      }
+    }
+
+    window.closeLightbox = function() {
+      if (lightbox) {
+        lightbox.classList.add('hidden');
+        lightbox.classList.remove('flex');
+      }
+    };
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    if (main && container) {
+      container.addEventListener('click', function() {
+        openLightbox(main.src);
+      });
+    }
+
     if (thumbs.length > 0 && main) {
       thumbs.forEach(function(btn) {
         btn.addEventListener('click', function() {
