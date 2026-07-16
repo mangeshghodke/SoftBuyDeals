@@ -67,7 +67,7 @@ const productSchema = {
           {images.length > 0 ? (
             <div>
               <div id="image-container" class="glass-panel rounded-2xl p-3 sm:p-4 flex items-center justify-center aspect-[4/3] max-h-[400px] mb-4 cursor-pointer">
-                <img id="main-image" src={images[0]} alt={product.title} fetchpriority="high" class="max-w-full max-h-full object-scale-down transition-opacity duration-300" />
+                <img id="main-image" src={images[0]} alt={product.title} fetchpriority="high" class="m-auto max-w-full max-h-full object-contain transition-opacity duration-300" />
               </div>
               {images.length > 1 && (
                 <div class="flex gap-3 justify-center">
