@@ -132,7 +132,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
         status: 200, headers: { 'Content-Type': 'application/json' }
       });
     }
-    return redirect('/admin/dashboard/');
+    const pageAfterEdit = formData.get('page')?.toString() || '1';
+    return redirect(`/admin/dashboard/?page=${pageAfterEdit}`);
   }
 
   let shortId: string;
@@ -261,7 +262,8 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
       status: 200, headers: { 'Content-Type': 'application/json' }
     });
   }
-  return redirect('/admin/dashboard/');
+  const pageAfterEditPut = formData.get('page')?.toString() || '1';
+  return redirect(`/admin/dashboard/?page=${pageAfterEditPut}`);
 };
 
 export const DELETE: APIRoute = async ({ request, cookies }) => {

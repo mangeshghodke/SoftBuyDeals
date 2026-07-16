@@ -16,6 +16,7 @@ if (!product) {
 const secret = env.SESSION_SECRET as string;
 const sessionToken = Astro.cookies.get('session')?.value || '';
 const csrfToken = sessionToken ? getCsrfToken(sessionToken, secret) : '';
+const page = Astro.url.searchParams.get('page') || '1';
 const error = Astro.url.searchParams.get('error');
 
 const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
@@ -25,7 +26,7 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
   <section class="py-8 md:py-12">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
       <div class="mb-8">
-        <a href="/admin/dashboard/" class="text-sm text-primary-600 dark:text-primary-400 hover:underline mb-2 inline-block">&larr; Back to Dashboard</a>
+        <a href={`/admin/dashboard/?page=${page}`} class="text-sm text-primary-600 dark:text-primary-400 hover:underline mb-2 inline-block">&larr; Back to Dashboard</a>
         <h1 class="font-heading text-3xl font-bold text-slate-900 dark:text-white">Edit Product</h1>
         <p class="text-slate-500 dark:text-slate-400 mt-1">Update the product details below.</p>
       </div>
@@ -39,6 +40,7 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
       <form method="POST" action="/api/products/" class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6">
         <input type="hidden" name="id" value={product.id} />
         <input type="hidden" name="_csrf" value={csrfToken} />
+        <input type="hidden" name="page" value={page} />
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="md:col-span-2">
@@ -127,7 +129,7 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
 
         <div class="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
           <Button type="submit" variant="primary">Update Product</Button>
-          <a href="/admin/dashboard/" class="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Cancel</a>
+          <a href={`/admin/dashboard/?page=${page}`} class="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Cancel</a>
         </div>
       </form>
     </div>
