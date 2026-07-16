@@ -113,6 +113,17 @@ export const CATEGORY_GUIDES: Record<string, CategoryGuide> = {
   },
 };
 
+export const CATEGORY_ICONS: Record<string, string> = {
+  Electronics: '<path d="M9 3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3V3Zm0 1H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-3v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V4Zm2 0h2V3h-2v1Z"/><rect x="9" y="10" width="6" height="6" rx="1"/>',
+  Headphones: '<path d="M4 14a8 8 0 0 1 16 0v2a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h1.8A6 6 0 0 0 5.2 13H7a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2Z"/><circle cx="6.5" cy="13.5" r="1.5"/><circle cx="17.5" cy="13.5" r="1.5"/>',
+  Smartphones: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+  'Smart Home': '<path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v8a2 2 0 0 0 2 2h3v-6h4v6h3a2 2 0 0 0 2-2v-8"/><circle cx="12" cy="15" r="1"/>',
+  'Home & Kitchen': '<path d="M4 5h16v2a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V5Z"/><path d="M8 3h8v2H8V3Z"/><path d="M12 11v10"/><path d="M8 21h8"/>',
+  'Fashion & Beauty': '<path d="M7 4.5a4 4 0 0 1 4 0l1 .5 1-.5a4 4 0 0 1 4 0v.5A4 4 0 0 1 17 8H7a4 4 0 0 1 0-3.5Z"/><path d="M12 8v4"/><path d="M8 18a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4H8v-4Z"/>',
+  Gaming: '<path d="M6 12H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><path d="M6 12v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/>',
+  Books: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.5a1.5 1.5 0 0 0 0 3H19"/><path d="M4 19.5V6"/>',
+};
+
 export const GENERAL_BUYING_TIPS = [
   'Always compare prices across sellers. The same product on Amazon.in may have different prices from different sellers.',
   'Check the seller rating and return policy before purchasing \u2014 especially for electronics and high-value items.',
