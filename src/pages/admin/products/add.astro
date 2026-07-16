@@ -149,113 +149,30 @@ const error = Astro.url.searchParams.get('error');
     showImagePreview(e.target.value);
   });
 
-  document.getElementById('generate-review')?.addEventListener('click', function() {
+  document.getElementById('generate-review')?.addEventListener('click', async function() {
     var title = document.getElementById('title').value.trim();
     var category = document.getElementById('category').value.trim();
-      if (!title) { alert('Please fill in the product title first.'); return; }
-    var review = '';
-    var short = title.length > 60 ? title.substring(0, 57) + '...' : title;
-    var catLower = (category || 'product').toLowerCase();
-
-    if (/headphone|earphone|earbud|neckband/i.test(catLower)) {
-      review = 'The ' + short + ' delivers solid audio quality that punches above its price point. ';
-      review += 'The sound signature is well-balanced with clear mids and decent bass response, making it suitable for music, calls, and podcasts alike. ';
-      review += 'Battery life is adequate for daily use, easily lasting through a workday or a long commute without needing a recharge. ';
-      review += 'The comfortable fit ensures you can wear them for extended listening sessions without any fatigue or discomfort. ';
-      review += 'Build quality feels durable and premium, with controls that are intuitive and easy to use even on the go. ';
-      review += 'Pairing is quick and stable, and the wireless range is good enough to leave your phone in another room. ';
-      review += 'Whether you are commuting on a busy train, working out at the gym, or just relaxing at home, these get the job done without breaking the bank. ';
-      review += 'For anyone looking for reliable audio gear at an affordable price, this is a solid pick that we confidently recommend.';
-    } else if (/phone|smartphone|mobile/i.test(catLower)) {
-      review = 'The ' + short + ' offers a well-rounded package that stands out in its segment. ';
-      review += 'The display is vibrant with excellent colour reproduction and good brightness, making media consumption a genuine pleasure. ';
-      review += 'Camera performance is solid, especially in daylight conditions, capturing detailed and natural-looking photos with accurate colours. ';
-      review += 'Day-to-day performance feels smooth and responsive thanks to the capable processor and sufficient RAM, handling multitasking with ease. ';
-      review += 'Battery life comfortably gets through a full day of moderate to heavy use, so you do not have to worry about finding a charger mid-day. ';
-      review += 'The software experience is clean and user-friendly, with useful features that enhance productivity. ';
-      review += 'Build quality feels premium in hand, and the design is modern and attractive. ';
-      review += 'If you are looking for a reliable daily driver that offers great value for your money, this is a solid choice we stand behind.';
-    } else if (/electron|gadget|tech|computer|laptop|tablet|tv|speaker|monitor/i.test(catLower)) {
-      review = 'We recommend the ' + short + ' for its reliable performance and solid build quality. ';
-      review += 'It handles everyday tasks with ease, whether you are working on documents, streaming content, or browsing the web. ';
-      review += 'The design is practical and well thought out, with a thoughtful selection of ports and a sturdy overall feel. ';
-      review += 'Performance is consistent even under moderate load, and it offers great value compared to competitors in the same price range. ';
-      review += 'Setup is straightforward and hassle-free, and it works well right out of the box with minimal configuration needed. ';
-      review += 'The display is sharp and clear, making it suitable for both work and entertainment purposes. ';
-      review += 'Cooling is adequate for everyday use, and it runs quietly without distracting fan noise. ';
-      review += 'A practical choice for students, professionals, and anyone who wants dependable performance without overspending.';
-    } else if (/home|kitchen|cook|appliance|fridge|mixer|grinder|induction|air fryer/i.test(catLower)) {
-      review = 'The ' + short + ' is a practical addition to any home that genuinely makes life easier. ';
-      review += 'It is well-built with quality materials that feel durable and sturdy even with regular use. ';
-      review += 'Setup is simple and intuitive, and the controls are easy enough that you can start using it right away without referring to the manual. ';
-      review += 'Cleaning is hassle-free, which is always a welcome feature for any kitchen appliance. ';
-      review += 'It performs reliably and consistently, making daily chores noticeably more convenient and less time-consuming. ';
-      review += 'The build quality inspires confidence, and it does not feel cheap or flimsy in any way. ';
-      review += 'Energy efficiency is good, so you can use it regularly without worrying about your electricity bill. ';
-      review += 'For the price, it delivers exactly what you would expect and holds up well with regular use over time. ';
-      review += 'We believe this is a worthwhile investment for anyone looking to upgrade their home essentials.';
-    } else if (/fashion|cloth|dress|shirt|saree|kurta|shoe|slipper|wallet|bag|accessor/i.test(catLower)) {
-      review = 'The ' + short + ' looks even better in person and offers excellent quality for the price. ';
-      review += 'The material feels durable and comfortable against the skin, with stitching that is neat and well-finished throughout. ';
-      review += 'Fit is true to size, so you can order your usual size with confidence and expect a great fit. ';
-      review += 'The colour and design match the product images closely, with no unpleasant surprises when it arrives. ';
-      review += 'It is versatile enough to be dressed up or down, making it a practical addition to your wardrobe for various occasions. ';
-      review += 'After multiple washes, the fabric holds up well without fading, shrinking, or losing its shape. ';
-      review += 'The attention to detail is apparent, from the finish to the overall construction quality. ';
-      review += 'Whether you are dressing for a casual outing, a formal event, or everyday wear, this is a reliable choice that looks great.';
-    } else if (/beauty|skin|cream|perfume|makeup|cosmetic/i.test(catLower)) {
-      review = 'The ' + short + ' delivers impressive results without being too heavy on the pocket. ';
-      review += 'It has a pleasant, lightweight texture that absorbs quickly into the skin without leaving any greasy or sticky residue. ';
-      review += 'The fragrance is mild, pleasant, and suitable for daily use without being overpowering or clashing with other products. ';
-      review += 'With regular use, you will notice visible improvement in your skin texture and overall appearance. ';
-      review += 'It is gentle enough for most skin types, including sensitive skin, and does not cause any irritation or breakouts. ';
-      review += 'The packaging is practical, hygienic, and travel-friendly, making it easy to carry in your bag. ';
-      review += 'A little goes a long way, so the product lasts longer than expected. ';
-      review += 'A solid addition to your daily grooming routine that offers reliable performance at an affordable price point.';
-    } else if (/book|reading|novel|story/i.test(catLower)) {
-      review = short + ' is an engaging and well-crafted read that we thoroughly enjoyed from start to finish. ';
-      review += 'The writing is crisp, fluid, and immersive, with a narrative style that draws you in right from the first chapter. ';
-      review += 'Characters are well-developed, relatable, and multi-dimensional, making it easy to stay invested in their personal journeys. ';
-      review += 'The pacing is masterful, balancing moments of tension and excitement with quieter, more reflective passages that give you room to breathe. ';
-      review += 'The themes explored are thought-provoking and relevant, leaving you with plenty to ponder long after you have turned the last page. ';
-      review += 'It is the kind of book that stays with you, and you will find yourself recommending it to friends and family. ';
-      review += 'Whether you are a casual reader looking for your next escape or a devoted bookworm seeking something substantial, this one delivers on all fronts.';
-    } else if (/game|gaming|console|controller/i.test(catLower)) {
-      review = 'The ' + short + ' significantly enhances your gaming experience in meaningful ways. ';
-      review += 'It is responsive, precise, and well-designed, with ergonomics that feel natural and comfortable even during marathon gaming sessions. ';
-      review += 'Build quality inspires confidence, with buttons and controls that have a satisfying tactile feel and register inputs accurately. ';
-      review += 'Compatibility is broad, working seamlessly with popular platforms, games, and launchers right out of the box. ';
-      review += 'Setup is truly plug-and-play with no complicated drivers, software, or configuration required. ';
-      review += 'Latency is minimal, ensuring your inputs translate to on-screen actions without any noticeable delay. ';
-      review += 'The design looks great on your desk and complements any gaming setup aesthetically. ';
-      review += 'Whether you are a casual player who enjoys weekend gaming or a dedicated enthusiast pushing for higher ranks, this is a worthwhile addition to your setup.';
-    } else if (/toy|kid|baby|child|infant/i.test(catLower)) {
-      review = 'The ' + short + ' is an excellent choice for children that both kids and parents will love. ';
-      review += 'It is made from safe, non-toxic materials that meet quality standards, giving parents complete peace of mind during playtime. ';
-      review += 'The design is colourful, engaging, and thoughtfully crafted to capture children attention and encourage imaginative play. ';
-      review += 'It is built to withstand rough handling and accidental drops, holding up well to the demands of daily use. ';
-      review += 'The product promotes learning and development through interactive play, making it both fun and educational. ';
-      review += 'Kids stay entertained for hours at a time, giving parents some well-deserved quiet time. ';
-      review += 'The size is appropriate for little hands, and there are no small parts that could pose a choking hazard. ';
-      review += 'Parents will appreciate the quality construction, thoughtful design, and the excellent value for money it represents.';
-    } else if (/car|auto|bike|vehicle|accessor/i.test(catLower)) {
-      review = 'The ' + short + ' is a practical and well-made accessory for your vehicle. ';
-      review += 'It is constructed from durable materials that can withstand regular use and varying weather conditions without deteriorating. ';
-      review += 'Installation is straightforward and can be done in minutes without requiring any special tools or professional assistance. ';
-      review += 'It fits securely and stays in place even during rough roads or high speeds. ';
-      review += 'The design complements your vehicle interior and does not look out of place. ';
-      review += 'It performs its intended function reliably day after day, adding genuine convenience to your daily drive. ';
-      review += 'Maintenance is minimal, and it cleans easily with a simple wipe. ';
-      review += 'A practical and affordable buy for anyone looking to keep their vehicle in good shape or enhance their overall driving experience.';
-    } else {
-      review = 'We picked the ' + short + ' because it offers exceptional value for its price point. ';
-      review += 'It is well-made with clear attention to detail, and the materials used feel quality and built to last. ';
-      review += 'It serves its purpose effectively and performs reliably with consistent results during regular use. ';
-      review += 'Buyer feedback has been overwhelmingly positive, with many highlighting its durability, performance, and overall value proposition. ';
-      review += 'The design is practical and user-friendly, making it accessible for everyone regardless of experience level. ';
-      review += 'It is versatile enough to handle a variety of use cases and scenarios. ';
-      review += 'If you are in the market for this type of product, it is definitely worth considering and we are confident you will be satisfied with your purchase.';
+    if (!title) { alert('Please fill in the product title first.'); return; }
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    try {
+      var res = await fetch('/api/generate-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, category: category || 'General' })
+      });
+      var data = await res.json();
+      if (data.review) {
+        document.getElementById('review').value = data.review;
+      } else {
+        alert('Failed to generate review. Please try again.');
+      }
+    } catch (e) {
+      alert('Network error. Please try again.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Generate';
     }
-    document.getElementById('review').value = review;
   });
 </script>
