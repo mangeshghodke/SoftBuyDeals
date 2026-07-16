@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { getProducts } from '../lib/data';
+import { CATEGORY_GUIDES } from '../lib/categories';
 
 const db = env.DB;
 const products = await getProducts(db);
@@ -132,6 +133,29 @@ const catItems: CatItem[] = categories.map((cat, i) => {
       </div>
     </section>
   )}
+
+  <section class="py-16 md:py-24 bg-slate-50 dark:bg-[#09090b]/60">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="font-heading text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Expert Buying Guides</h2>
+        <p class="text-slate-600 dark:text-slate-400 max-w-xl mx-auto">Make informed purchase decisions with our curated buying guides</p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        {Object.entries(CATEGORY_GUIDES).slice(0, 4).map(([category, guide]) => (
+          <a href={`/guides/${encodeURIComponent(category.toLowerCase())}/`} class="group glass-panel rounded-2xl p-5 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            <h3 class="font-heading font-semibold text-slate-900 dark:text-white text-sm group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{category}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">{guide.guideIntro.slice(0, 80)}...</p>
+          </a>
+        ))}
+      </div>
+      <div class="text-center mt-8">
+        <a href="/guides/" class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 font-medium hover:underline text-sm">
+          View All Guides
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
 
   <section class="py-16 md:py-24">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">

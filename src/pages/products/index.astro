@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getProducts } from '../../lib/data';
+import { CATEGORY_GUIDES } from '../../lib/categories';
 
 const PER_PAGE = 12;
 
@@ -78,6 +79,16 @@ function pageRange(): (number | '...')[] {
           Curated products with the best prices, handpicked just for you. Click & buy directly from Amazon.in.
         </p>
       </div>
+
+      {selectedCategory && CATEGORY_GUIDES[selectedCategory] && (
+        <div class="mb-8 p-6 glass-panel rounded-2xl">
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{CATEGORY_GUIDES[selectedCategory].description}</p>
+          <a href={`/guides/${encodeURIComponent(selectedCategory.toLowerCase())}/`} class="inline-flex items-center gap-1 mt-3 text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline">
+            Read our {selectedCategory} Buying Guide
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+      )}
 
       {categoryNames.length > 1 && (
         <div class="mb-10">

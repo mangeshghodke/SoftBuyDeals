@@ -16,6 +16,7 @@ export const SOCIAL_LINKS = {
 export const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/products/', label: 'Products' },
+  { href: '/guides/', label: 'Buying Guides' },
 ];
 
 export const FOOTER_LINKS = [
@@ -30,6 +31,7 @@ export const FOOTER_LINKS = [
   {
     title: 'Resources',
     links: [
+      { label: 'Buying Guides', href: '/guides/' },
       { label: 'About Us', href: '/about/' },
       { label: 'Privacy Policy', href: '/privacy/' },
       { label: 'Terms of Service', href: '/terms/' },

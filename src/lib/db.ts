@@ -1,7 +1,7 @@
 export interface Product {
   id: string; title: string; price: string; originalPrice: string;
   imageUrl: string; amazonUrl: string; affiliateUrl: string;
-  description: string; rating: string; category: string; coupon: string; createdAt: string;
+  description: string; rating: string; category: string; coupon: string; review: string; createdAt: string;
 }
 
 function rowToProduct(row: Record<string, unknown>): Product {
@@ -17,6 +17,7 @@ function rowToProduct(row: Record<string, unknown>): Product {
     rating: row.rating as string,
     category: row.category as string,
     coupon: row.coupon as string || '',
+    review: row.review as string || '',
     createdAt: row.createdAt as string,
   };
 }
@@ -38,10 +39,12 @@ async function ensureTable(db: any): Promise<void> {
         rating TEXT NOT NULL DEFAULT '',
         category TEXT NOT NULL DEFAULT 'Uncategorized',
         coupon TEXT NOT NULL DEFAULT '',
+        review TEXT NOT NULL DEFAULT '',
         createdAt TEXT NOT NULL
       )
     `).run();
     try { await db.prepare("ALTER TABLE products ADD COLUMN coupon TEXT NOT NULL DEFAULT ''").run(); } catch {}
+    try { await db.prepare("ALTER TABLE products ADD COLUMN review TEXT NOT NULL DEFAULT ''").run(); } catch {}
     _initialized = true;
   }
 }
@@ -61,12 +64,12 @@ export async function getProductById(db: any, id: string): Promise<Product | und
 export async function createProduct(db: any, product: Product): Promise<void> {
   await ensureTable(db);
   await db.prepare(`
-    INSERT INTO products (id, title, price, originalPrice, imageUrl, amazonUrl, affiliateUrl, description, rating, category, coupon, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO products (id, title, price, originalPrice, imageUrl, amazonUrl, affiliateUrl, description, rating, category, coupon, review, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     product.id, product.title, product.price, product.originalPrice,
     product.imageUrl, product.amazonUrl, product.affiliateUrl,
-    product.description, product.rating, product.category, product.coupon, product.createdAt
+    product.description, product.rating, product.category, product.coupon, product.review, product.createdAt
   ).run();
 }
 

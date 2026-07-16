@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { SITE_URL } from '../config';
 import { getProducts } from '../lib/data';
+import { CATEGORY_GUIDES } from '../lib/categories';
 
 type SitemapEntry = {
   path: string;
@@ -11,6 +12,8 @@ type SitemapEntry = {
 const staticEntries: SitemapEntry[] = [
   { path: '/' },
   { path: '/products/' },
+  { path: '/guides/' },
+  ...Object.keys(CATEGORY_GUIDES).map(name => ({ path: `/guides/${encodeURIComponent(name.toLowerCase())}/` as string })),
   { path: '/about/' },
   { path: '/contact/' },
   { path: '/privacy/' },
