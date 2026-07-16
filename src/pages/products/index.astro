@@ -3,7 +3,7 @@ import { env } from 'cloudflare:workers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getProducts } from '../../lib/data';
-import { CATEGORY_GUIDES, CATEGORY_ICONS } from '../../lib/categories';
+import { CATEGORY_GUIDES } from '../../lib/categories';
 
 const PER_PAGE = 12;
 
@@ -27,14 +27,14 @@ const selectedCategory = Astro.url.searchParams.get('category');
 const sortedCategories = selectedCategory
   ? [selectedCategory, ...categoryNames.filter(c => c !== selectedCategory)]
   : categoryNames;
-interface ScrollCatItem { name: string; bg: string; border: string; icon: string; stroke: string; }
+interface ScrollCatItem { name: string; bg: string; border: string; }
 const selectedCatIdx = selectedCategory ? sortedCategories.indexOf(selectedCategory) + 1 : -1;
 const scrollCatItems: ScrollCatItem[] = sortedCategories.map((cat, i) => {
   const active = selectedCategory === cat;
   const c = catColors[colorKeys[i % colorKeys.length]];
   const bg = active ? `linear-gradient(135deg, ${c.replace('0.15','0.3')}, ${c.replace('0.15','0.15')})` : `linear-gradient(135deg, ${c}, ${c.replace('0.15','0.05')})`;
   const border = active ? c.replace('0.15','0.6') : c.replace('0.15','0.3');
-  return { name: cat, bg, border, icon: c, stroke: c.replace('0.15','0.8') };
+  return { name: cat, bg, border };
 });
 const filtered = selectedCategory
   ? allProducts.filter(p => p.category === selectedCategory)
@@ -101,12 +101,7 @@ function pageRange(): (number | '...')[] {
                 style="scroll-snap-align:start"
               >
                 <div class={`rounded-2xl px-5 py-4 text-center border hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ${!selectedCategory ? 'bg-primary-600 text-white border-primary-600 shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={`background: ${!selectedCategory ? 'rgba(255,255,255,0.2)' : 'rgba(99,102,241,0.15)'};`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke={!selectedCategory ? '#fff' : '#6366f1'}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    </div>
-                    <span class="font-heading font-semibold text-sm whitespace-nowrap">All</span>
-                  </div>
+                  <span class="font-heading font-semibold text-sm whitespace-nowrap">All</span>
                 </div>
               </a>
               {scrollCatItems.map(item => (
@@ -116,12 +111,7 @@ function pageRange(): (number | '...')[] {
                   style="scroll-snap-align:start"
                 >
                   <div class="rounded-2xl px-5 py-4 text-center border hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" style={`background: ${item.bg}; border-color: ${item.border};`}>
-                    <div class="flex items-center gap-2">
-                      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ring-1 ring-white/20 dark:ring-white/5" style={`background: ${item.icon};`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={CATEGORY_ICONS[item.name] || ''}></svg>
-                      </div>
-                      <span class="font-heading font-semibold text-sm text-slate-900 dark:text-white whitespace-nowrap">{item.name}</span>
-                    </div>
+                    <span class="font-heading font-semibold text-sm text-slate-900 dark:text-white whitespace-nowrap">{item.name}</span>
                   </div>
                 </a>
               ))}
