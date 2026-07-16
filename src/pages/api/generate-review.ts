@@ -17,14 +17,16 @@ export const POST: APIRoute = async ({ request }) => {
   const userPrompt = `Write a detailed product review (6-8 sentences) for this product:\n\nTitle: ${title}\nCategory: ${category || 'General'}\n\nThe review should highlight why someone would want to buy this product. Keep it general enough that the claims are plausible for any product in this category. Do not mention specific features like battery life, camera megapixels, processor specs, or dimensions unless they are obvious from the title. Focus on quality, value, design, and user experience.`;
 
   try {
-    const result = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+    const result = await ai.run('@cf/zai-org/glm-4.7-flash', {
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ]
-    });
+    }) as any;
 
-    const text = (result as any).response?.trim() || '';
+    const text = result?.choices?.[0]?.message?.content?.trim()
+      || result?.response?.trim()
+      || '';
 
     return new Response(JSON.stringify({ review: text }), {
       status: 200, headers: { 'Content-Type': 'application/json' }
