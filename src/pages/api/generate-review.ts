@@ -10,9 +10,9 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const systemPrompt = 'You are a helpful product reviewer who writes compelling Amazon product recommendations. Write in plain text only. No markdown, no formatting, no asterisks, no bullet points. Write 6-8 sentences. Use "we" and "our" voice (e.g. "We recommend...", "We think..."). Do not mention specific technical specifications you are unsure about. Keep it persuasive but honest.';
+  const systemPrompt = 'You are a helpful product reviewer who writes compelling Amazon product recommendations. Use "we" and "our" voice (e.g. "We recommend...", "We think..."). Do not mention specific technical specifications you are unsure about. Keep it persuasive but honest. Output only bullet points, one per line, starting with "- ".';
 
-  const userPrompt = `Write a detailed product review (6-8 sentences) for this product:\n\nTitle: ${title}\nCategory: ${category || 'General'}\n\nThe review should highlight why someone would want to buy this product. Keep it general enough that the claims are plausible for any product in this category. Do not mention specific features like battery life, camera megapixels, processor specs, or dimensions unless they are obvious from the title. Focus on quality, value, design, and user experience.`;
+  const userPrompt = `Write a product review as 5-6 bullet points for this product:\n\nTitle: ${title}\nCategory: ${category || 'General'}\n\nEach bullet point should highlight a reason someone would want to buy it. Keep claims general enough to be plausible. Do not mention specific specs like battery life, camera megapixels, processor speed, or dimensions unless obvious from the title. Focus on quality, value, design, and user experience. Use "- " at the start of each line. No paragraphs or extra text before or after the list.`;
 
   try {
     const ai = env.AI as any;
