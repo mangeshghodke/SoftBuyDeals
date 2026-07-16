@@ -119,11 +119,16 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
           </div>
 
           <div class="md:col-span-2">
-            <label for="review" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Original Review (write in your own words)</label>
-            <textarea id="review" name="review" rows="3"
-              class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white resize-none"
-              placeholder="Why we recommend this product — share your genuine opinion..."
-            >{product.review}</textarea>
+            <label for="review" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Original Review</label>
+            <div class="flex gap-3 items-start">
+              <textarea id="review" name="review" rows="3"
+                class="flex-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white resize-none"
+                placeholder="Why we recommend this product — share your genuine opinion..."
+              >{product.review}</textarea>
+              <button type="button" id="generate-review" class="shrink-0 px-4 py-3 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-xl text-sm font-medium hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors">
+                Generate
+              </button>
+            </div>
           </div>
         </div>
 
@@ -135,3 +140,42 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  document.addEventListener('astro:page-load', function() {
+    document.getElementById('generate-review')?.addEventListener('click', function() {
+      var title = document.getElementById('title').value.trim();
+      var category = document.getElementById('category').value.trim();
+      var description = document.getElementById('description').value.trim();
+      if (!title) { alert('Please fill in the product title first.'); return; }
+      var review = '';
+      var short = title.length > 60 ? title.substring(0, 57) + '...' : title;
+      var catLower = (category || 'product').toLowerCase();
+
+      if (/headphone|earphone|earbud|neckband/i.test(catLower)) {
+        review = 'The ' + short + ' delivers solid audio quality at this price point. The battery life is adequate for daily use, and the comfortable fit makes it suitable for extended listening sessions. Whether you are commuting or working out, these get the job done without breaking the bank.';
+      } else if (/phone|smartphone|mobile/i.test(catLower)) {
+        review = 'The ' + short + ' offers a well-rounded package for its segment. The display is vibrant, the camera handles daylight shots nicely, and day-to-day performance feels smooth. If you are looking for a reliable daily driver, this is a solid choice.';
+      } else if (/electron|gadget|tech|computer|laptop|tablet|tv|speaker|monitor/i.test(catLower)) {
+        review = 'We recommend the ' + short + ' for its reliable performance and solid build quality. It handles everyday tasks with ease and offers great value compared to competitors in the same range. A practical choice for anyone who wants dependable performance without overspending.';
+      } else if (/home|kitchen|cook|appliance|fridge|mixer|grinder|induction|air fryer/i.test(catLower)) {
+        review = 'The ' + short + ' is a practical addition to any home. It is well-built, easy to use, and makes daily chores more convenient. For the price, it delivers exactly what you would expect and holds up well with regular use.';
+      } else if (/fashion|cloth|dress|shirt|saree|kurta|shoe|slipper|wallet|bag|accessor/i.test(catLower)) {
+        review = 'The ' + short + ' looks great and offers good quality for the price. The material feels durable, and the fit is true to size. A stylish option that works well for both casual and occasional wear.';
+      } else if (/beauty|skin|cream|perfume|makeup|cosmetic/i.test(catLower)) {
+        review = 'The ' + short + ' delivers good results without being too heavy on the pocket. It is gentle on the skin and works well for regular use. A solid addition to your daily grooming routine.';
+      } else if (/book|reading|novel|story/i.test(catLower)) {
+        review = short + ' is an engaging read that we thoroughly enjoyed. The writing is crisp, the pacing keeps you turning pages, and it leaves you with plenty to think about. Highly recommended for anyone looking for their next good read.';
+      } else if (/game|gaming|console|controller/i.test(catLower)) {
+        review = 'The ' + short + ' enhances your gaming experience significantly. It is responsive, well-designed, and offers great value for gamers on a budget. Whether you are a casual or dedicated player, this is a worthwhile addition to your setup.';
+      } else if (/toy|kid|baby|child|infant/i.test(catLower)) {
+        review = 'The ' + short + ' is a great pick for kids. It is safe, engaging, and keeps them entertained for hours. Parents will appreciate the quality and the value for money.';
+      } else if (/car|auto|bike|vehicle|accessor/i.test(catLower)) {
+        review = 'The ' + short + ' is a handy accessory for your vehicle. It is built to last and does its job without any fuss. A practical buy for anyone looking to keep their vehicle in good shape.';
+      } else {
+        review = 'We picked the ' + short + ' because it offers great value for its price. It is well-made, serves its purpose effectively, and has received positive feedback from buyers. If you are in the market for this type of product, it is definitely worth considering.';
+      }
+      document.getElementById('review').value = review;
+    });
+  });
+</script>
