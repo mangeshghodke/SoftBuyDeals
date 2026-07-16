@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 import { CATEGORY_GUIDES, GENERAL_BUYING_TIPS, CATEGORY_ICONS } from '../../lib/categories';
 
 const categories = Object.entries(CATEGORY_GUIDES);
@@ -18,7 +19,8 @@ const catColors: Record<string, string> = {
 <BaseLayout title="Buying Guides" description="Expert buying guides and tips to help you make smart purchase decisions on Amazon.in">
   <section class="py-16 md:py-24">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
+      <Breadcrumb items={[{ label: 'Buying Guides' }]} />
+      <div class="text-center mb-12">
         <h1 class="font-heading text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
           Buying <span class="text-gradient">Guides</span>
         </h1>

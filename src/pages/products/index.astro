@@ -1,6 +1,7 @@
 ---
 import { env } from 'cloudflare:workers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getProducts } from '../../lib/data';
 import { CATEGORY_GUIDES } from '../../lib/categories';
@@ -71,9 +72,14 @@ function pageRange(): (number | '...')[] {
 <BaseLayout title="Products" description="Browse our curated collection of best deals on Amazon.in">
   <section class="py-8 md:py-16">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
+      <Breadcrumb items={selectedCategory
+        ? [{ label: 'Products', url: '/products/' }, { label: selectedCategory }]
+        : [{ label: 'Products' }]
+      } />
+
+      <div class="text-center mb-4">
         <h1 class="font-heading text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-          Best Deals on <span class="text-gradient">Amazon.in</span>
+          {selectedCategory ? `${selectedCategory} Deals` : 'Best Deals on '}<span class="text-gradient">{selectedCategory ? '' : 'Amazon.in'}</span>
         </h1>
         <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
           Curated products handpicked just for you. Click & buy directly from Amazon.in.

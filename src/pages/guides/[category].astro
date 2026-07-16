@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 import { CATEGORY_GUIDES, GENERAL_BUYING_TIPS } from '../../lib/categories';
+import { SITE_URL } from '../../config';
 
 const rawSlug = Astro.params.category || '';
 const slug = rawSlug.toLowerCase();
@@ -43,10 +45,10 @@ const iconSvg = catIcons[categoryKey] || '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5
 >
   <section class="py-16 md:py-24">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
-      <a href="/guides/" class="inline-flex items-center gap-1 text-sm text-primary-600 dark:text-primary-400 hover:underline mb-8">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
-        Back to Guides
-      </a>
+      <Breadcrumb items={[
+        { label: 'Buying Guides', url: '/guides/' },
+        { label: `${categoryKey} Buying Guide` },
+      ]} />
 
       <div class={`w-14 h-14 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-6`}>
         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={iconSvg}>
@@ -98,3 +100,16 @@ const iconSvg = catIcons[categoryKey] || '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5
     </div>
   </section>
 </BaseLayout>
+
+<script type="application/ld+json" set:html={JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: guide.tips.map((tip, i) => ({
+    '@type': 'Question',
+    name: `${i + 1}. ${categoryKey} Buying Tip`,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: tip,
+    },
+  })),
+})} />
