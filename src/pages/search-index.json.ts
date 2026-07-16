@@ -18,7 +18,7 @@ export const GET: APIRoute = async () => {
     })),
     ...products.map(product => ({
       title: product.title,
-      description: `${product.price}${product.originalPrice ? ` (was ${product.originalPrice})` : ''} — ${product.description?.slice(0, 120) || ''}`,
+      description: product.description?.slice(0, 120) || product.title,
       slug: '/p/',
       url: `/p/${product.id}/`,
       type: 'Product',

@@ -6,35 +6,10 @@ const API_BASE = `https://graph.threads.net/${API_VERSION}`;
 
 const REFRESH_THRESHOLD_MS = 30 * 24 * 60 * 60 * 1000;
 
-function parsePrice(s: string | undefined): number | null {
-  if (!s) return null;
-  const n = parseFloat(s.replace(/[₹,]/g, ''));
-  return isNaN(n) ? null : n;
-}
-
-function fmtPrice(s: string | undefined): string {
-  if (!s) return '';
-  return s.startsWith('₹') ? s : `₹${s}`;
-}
-
 function buildCaption(product: Product): string {
-  const offer = parsePrice(product.price);
-  const mrp = parsePrice(product.originalPrice);
-  const savings = offer !== null && mrp !== null ? mrp - offer : null;
-
   const parts: string[] = [];
   parts.push(`🎯 ${product.title}`);
   parts.push('');
-  parts.push(`Offer Price: ${fmtPrice(product.price)} ✅`);
-
-  if (mrp !== null && mrp > (offer ?? 0)) {
-    parts.push(`MRP: ${fmtPrice(product.originalPrice)} ❌`);
-  }
-
-  if (savings !== null && savings > 0) {
-    const pct = Math.round((savings / mrp!) * 100);
-    parts.push(`Save ₹${savings.toLocaleString('en-IN')} (${pct}% off) 🔥`);
-  }
 
   if (product.category) {
     parts.push(`${product.category} 📂`);

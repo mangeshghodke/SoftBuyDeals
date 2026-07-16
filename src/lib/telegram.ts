@@ -1,16 +1,5 @@
 import type { Product } from './data';
 
-function parsePrice(s: string | undefined): number | null {
-  if (!s) return null;
-  const n = parseFloat(s.replace(/[₹,]/g, ''));
-  return isNaN(n) ? null : n;
-}
-
-function fmtPrice(s: string | undefined): string {
-  if (!s) return '';
-  return s.startsWith('₹') ? s : `₹${s}`;
-}
-
 async function sendTelegram(
   token: string,
   method: string,
@@ -43,24 +32,10 @@ export async function notifyProduct(
   botToken: string,
   channelId: string,
 ): Promise<void> {
-  const offer = parsePrice(product.price);
-  const mrp = parsePrice(product.originalPrice);
-  const savings = offer !== null && mrp !== null ? mrp - offer : null;
-
   const lines: string[] = [
     `🎯 <b>${esc(product.title)}</b>`,
     ``,
-    `💰 <b>Offer Price:</b> ${fmtPrice(product.price)}`,
   ];
-
-  if (product.originalPrice) {
-    lines.push(`🏷️ <b>MRP:</b> <s>${fmtPrice(product.originalPrice)}</s>`);
-  }
-
-  if (savings !== null && savings > 0) {
-    const pct = Math.round((savings / mrp!) * 100);
-    lines.push(`🔥 <b>Savings:</b> ₹${savings.toLocaleString('en-IN')} (${pct}% off)`);
-  }
 
   if (product.category) {
     lines.push(`📂 <b>Category:</b> ${esc(product.category)}`);
