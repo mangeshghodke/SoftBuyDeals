@@ -19,6 +19,8 @@ jobs:
       - run: npm ci
 
       - run: npm run build
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Deploy to Cloudflare Workers
         run: npx wrangler deploy --config dist/server/wrangler.json
