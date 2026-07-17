@@ -15,8 +15,11 @@ function buildCaption(product: Product): string {
     parts.push(`${product.category} 📂`);
   }
 
-  if (product.price) {
-    parts.push(`💰 ${product.price}`);
+  if (product.originalPrice || product.price) {
+    let priceLine = '';
+    if (product.originalPrice) priceLine += `${product.originalPrice} → `;
+    if (product.price) priceLine += `${product.price}`;
+    parts.push(`💰 ${priceLine}`);
   }
 
   parts.push('');

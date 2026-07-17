@@ -41,8 +41,16 @@ export async function notifyProduct(
     lines.push(`📂 <b>Category:</b> ${esc(product.category)}`);
   }
 
-  if (product.price) {
-    lines.push(`💰 <b>Price:</b> ${esc(product.price)}`);
+  if (product.originalPrice || product.price) {
+    let priceLine = '';
+    if (product.originalPrice) {
+      priceLine += `<s>${esc(product.originalPrice)}</s>`;
+    }
+    if (product.price) {
+      if (priceLine) priceLine += ' ';
+      priceLine += `<b>${esc(product.price)}</b>`;
+    }
+    lines.push(`💰 ${priceLine}`);
   }
 
   lines.push(``, `As an Amazon Associate I earn from qualifying purchases.`, ``);
