@@ -15,6 +15,10 @@ function buildCaption(product: Product): string {
     parts.push(`${product.category} 📂`);
   }
 
+  if (product.price) {
+    parts.push(`💰 ${product.price}`);
+  }
+
   parts.push('');
 
   parts.push(`${SITE_URL.replace(/\/$/, '')}/p/${product.id}/`);

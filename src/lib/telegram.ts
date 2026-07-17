@@ -41,6 +41,10 @@ export async function notifyProduct(
     lines.push(`📂 <b>Category:</b> ${esc(product.category)}`);
   }
 
+  if (product.price) {
+    lines.push(`💰 <b>Price:</b> ${esc(product.price)}`);
+  }
+
   lines.push(``, `As an Amazon Associate I earn from qualifying purchases.`, ``);
   lines.push(`⬇️ Click below to grab the deal!`, `#softbuydeals #ad`);
 
