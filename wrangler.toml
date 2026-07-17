@@ -10,3 +10,8 @@ database_id = "d202ba02-c82a-4acb-b412-1cb39382d8b9"
 [ai]
 binding = "AI"
 
+routes = [
+  { pattern = "softbuydeals.in", custom_domain = true },
+  { pattern = "www.softbuydeals.in", custom_domain = true },
+]
+

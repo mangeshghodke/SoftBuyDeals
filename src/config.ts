@@ -1,6 +1,6 @@
 export const SITE_TITLE = 'SoftBuyDeals';
 export const SITE_DESCRIPTION = 'Best deals and discounts on Amazon.in — curated products just for you.';
-export const SITE_URL = 'https://softbuydeals.ghodke-mangesh2.workers.dev';
+export const SITE_URL = 'https://softbuydeals.in';
 export const REPOSITORY_URL = 'https://github.com/mangeshghodke/SoftBuyDeals';
 
 export const BRAND_NAME = 'SoftBuyDeals';

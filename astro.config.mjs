@@ -6,7 +6,7 @@ import mdx from '@astrojs/mdx';
 import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
-  site: 'https://softbuydeals.com',
+  site: 'https://softbuydeals.in',
   base: '/',
   trailingSlash: 'always',
 
