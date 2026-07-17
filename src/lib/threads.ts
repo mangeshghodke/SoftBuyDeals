@@ -1,6 +1,10 @@
 import type { Product } from './data';
 import { SITE_URL } from '../config';
 
+function parsePrice(s: string): number {
+  return parseFloat(s.replace(/[₹,\s]/g, '')) || 0;
+}
+
 const API_VERSION = 'v1.0';
 const API_BASE = `https://graph.threads.net/${API_VERSION}`;
 
@@ -15,11 +19,18 @@ function buildCaption(product: Product): string {
     parts.push(`${product.category} 📂`);
   }
 
-  if (product.originalPrice || product.price) {
-    let priceLine = '';
-    if (product.originalPrice) priceLine += `${product.originalPrice} → `;
-    if (product.price) priceLine += `${product.price}`;
-    parts.push(`💰 ${priceLine}`);
+  if (product.originalPrice && product.price) {
+    const mrp = parsePrice(product.originalPrice);
+    const offer = parsePrice(product.price);
+    const saved = mrp - offer;
+    const pct = mrp > 0 ? Math.round((saved / mrp) * 100) : 0;
+    parts.push(`Offer Price: ${product.price} ✅`);
+    parts.push(`MRP: ${product.originalPrice} ❌`);
+    if (saved > 0) {
+      parts.push(`Save ₹${saved.toLocaleString('en-IN')} (${pct}% off) 🔥`);
+    }
+  } else if (product.price) {
+    parts.push(`💰 ${product.price}`);
   }
 
   parts.push('');

@@ -1,5 +1,9 @@
 import type { Product } from './data';
 
+function parsePrice(s: string): number {
+  return parseFloat(s.replace(/[₹,\s]/g, '')) || 0;
+}
+
 async function sendTelegram(
   token: string,
   method: string,
@@ -41,16 +45,18 @@ export async function notifyProduct(
     lines.push(`📂 <b>Category:</b> ${esc(product.category)}`);
   }
 
-  if (product.originalPrice || product.price) {
-    let priceLine = '';
-    if (product.originalPrice) {
-      priceLine += `<s>${esc(product.originalPrice)}</s>`;
+  if (product.originalPrice && product.price) {
+    const mrp = parsePrice(product.originalPrice);
+    const offer = parsePrice(product.price);
+    const saved = mrp - offer;
+    const pct = mrp > 0 ? Math.round((saved / mrp) * 100) : 0;
+    lines.push(`Offer Price: ${esc(product.price)} ✅`);
+    lines.push(`MRP: ${esc(product.originalPrice)} ❌`);
+    if (saved > 0) {
+      lines.push(`Save ₹${saved.toLocaleString('en-IN')} (${pct}% off) 🔥`);
     }
-    if (product.price) {
-      if (priceLine) priceLine += ' ';
-      priceLine += `<b>${esc(product.price)}</b>`;
-    }
-    lines.push(`💰 ${priceLine}`);
+  } else if (product.price) {
+    lines.push(`💰 ${esc(product.price)}`);
   }
 
   lines.push(``, `As an Amazon Associate I earn from qualifying purchases.`, ``);
