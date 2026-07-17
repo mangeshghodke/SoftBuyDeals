@@ -166,7 +166,7 @@ Auth: JWT stored in `astro-auth-jwt` cookie + CSRF token via meta tag.
 
 ## 🌐 Deployment
 
-- **URL**: `https://softbuydeals.ghodke-mangesh2.workers.dev/`
+- **URL**: `https://softbuydeals.in/`
 - **Build**: `npm run build` (Astro SSR build + postbuild.mjs)
 - **Deploy**: `npm run deploy` (wrangler deploy with `dist/server/wrangler.json`)
 - **CI**: GitHub Actions on push to `main` — `npm ci && npm run build && wrangler deploy`
