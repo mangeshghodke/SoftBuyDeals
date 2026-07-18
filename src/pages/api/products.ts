@@ -34,6 +34,7 @@ function validateProductInput(data: Record<string, string | undefined>): string[
   if (data.imageUrl && !data.imageUrl.startsWith('http')) errors.push('Image URL must start with http');
   if (data.amazonUrl && !data.amazonUrl.startsWith('http')) errors.push('Amazon URL must start with http');
   if (data.affiliateUrl && !data.affiliateUrl.startsWith('http')) errors.push('Affiliate URL must start with http');
+  if (data.affiliateUrl && !data.affiliateUrl.includes('tag=softbuydeals01-21')) errors.push('Affiliate URL must contain your Amazon tag: tag=softbuydeals01-21');
   if (data.category && data.category.trim().length === 0) errors.push('Category cannot be empty');
   if (data.rating && data.rating.length > 50) errors.push('Rating too long');
   if (data.description && data.description.length > 2000) errors.push('Description exceeds 2000 characters');
