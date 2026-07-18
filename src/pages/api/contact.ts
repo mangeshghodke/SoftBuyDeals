@@ -43,7 +43,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'SoftBuyDeals <onboarding@resend.dev>',
+        from: 'SoftBuyDeals <support@softbuydeals.in>',
         to: 'ghodke.mangesh2@gmail.com',
         reply_to: email,
         subject: `Contact form: ${name}`,
