@@ -141,11 +141,11 @@ const catItems: CatItem[] = categories.map((cat, i) => {
         <h2 class="font-heading text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Expert Buying Guides</h2>
         <p class="text-slate-600 dark:text-slate-400 max-w-xl mx-auto">Make informed purchase decisions with our curated buying guides</p>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
         {Object.entries(CATEGORY_GUIDES).slice(0, 4).map(([category, guide]) => (
-          <a href={`/guides/${encodeURIComponent(category.toLowerCase())}/`} class="group glass-panel rounded-2xl p-5 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-            <h3 class="font-heading font-semibold text-slate-900 dark:text-white text-sm group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{category}</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">{guide.guideIntro.slice(0, 80)}...</p>
+          <a href={`/guides/${encodeURIComponent(category.toLowerCase())}/`} class="group glass-panel rounded-2xl p-6 md:p-8 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            <h3 class="font-heading font-semibold text-slate-900 dark:text-white text-lg md:text-xl group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{category}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 line-clamp-3 leading-relaxed">{guide.guideIntro.slice(0, 120)}...</p>
           </a>
         ))}
       </div>
