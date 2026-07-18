@@ -162,6 +162,8 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
 
 <script>
   document.addEventListener('astro:page-load', function() {
+    if (document.getElementById('generate-description')?.dataset.inited) return;
+    document.getElementById('generate-description')?.setAttribute('data-inited', '1');
     document.getElementById('generate-description')?.addEventListener('click', async function() {
       var title = document.getElementById('title').value.trim();
       var category = document.getElementById('category').value.trim();
