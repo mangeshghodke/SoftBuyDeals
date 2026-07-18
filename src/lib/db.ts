@@ -151,5 +151,12 @@ export async function setSetting(db: any, key: string, value: string): Promise<v
   await db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').bind(key, value).run();
 }
 
+export function ensureAffiliateTag(url: string): string {
+  if (!url) return url;
+  const tag = 'tag=softbuydeals01-21';
+  if (url.includes('tag=')) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return url + sep + tag;
+}
 
 

@@ -2,7 +2,7 @@
 import { env } from 'cloudflare:workers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
-import { getProducts } from '../../lib/data';
+import { getProducts, ensureAffiliateTag } from '../../lib/data';
 import { CATEGORY_GUIDES } from '../../lib/categories';
 import { SITE_URL } from '../../config';
 
@@ -165,7 +165,7 @@ const productSchema = {
           {product.affiliateUrl ? (
             <div class="pt-2">
               <a
-                href={product.affiliateUrl}
+                href={ensureAffiliateTag(product.affiliateUrl)}
                 target="_blank"
                 rel="noopener noreferrer sponsored"
                 class="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-primary-600 text-white rounded-xl text-lg font-semibold hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/25 hover:shadow-primary-600/40"

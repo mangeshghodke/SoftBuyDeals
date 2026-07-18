@@ -1,4 +1,5 @@
 import type { Product } from './data';
+import { ensureAffiliateTag } from './data';
 
 function parsePrice(s: string): number {
   return parseFloat(s.replace(/[₹,\s]/g, '')) || 0;
@@ -70,7 +71,7 @@ export async function notifyProduct(
           [
             {
               text: '🛒 Checkout Here',
-              url: product.affiliateUrl,
+              url: ensureAffiliateTag(product.affiliateUrl),
             },
           ],
         ],
