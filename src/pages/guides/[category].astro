@@ -5,10 +5,14 @@ import { CATEGORY_GUIDES, GENERAL_BUYING_TIPS, GENERIC_GUIDE, getCategoryKey, ge
 import { SITE_URL } from '../../config';
 
 const rawSlug = Astro.params.category || '';
-const slug = rawSlug.toLowerCase();
+let decodedSlug = rawSlug;
+try {
+  decodedSlug = decodeURIComponent(rawSlug);
+} catch {}
+const slug = decodedSlug.toLowerCase().trim();
 const categoryKey = getCategoryKey(slug);
 const guide = categoryKey ? CATEGORY_GUIDES[categoryKey] : GENERIC_GUIDE;
-const displayName = categoryKey || rawSlug.trim() || 'Product';
+const displayName = categoryKey || decodedSlug.trim() || 'Product';
 
 if (categoryKey) {
   const canonicalSlug = getGuideSlug(categoryKey);
