@@ -44,7 +44,20 @@ function buildCaption(product: Product): string {
   parts.push('');
   parts.push('#softbuydeals #amazonfinds #deals #ad');
 
-  return parts.join('\n');
+  let caption = parts.join('\n');
+
+  // Threads rejects captions over 500 characters. Truncate only the title
+  // line to fit, keeping the link, disclosure and hashtags intact.
+  if (caption.length > 500) {
+    const titleLine = `🎯 ${product.title}`;
+    const budget = 500 - (caption.length - titleLine.length);
+    if (budget >= 20) {
+      parts[0] = titleLine.slice(0, budget).trimEnd();
+      caption = parts.join('\n');
+    }
+  }
+
+  return caption;
 }
 
 async function apiFetch(
