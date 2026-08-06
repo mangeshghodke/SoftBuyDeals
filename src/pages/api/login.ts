@@ -20,9 +20,15 @@ function verifyPassword(password: string, hashEnv: string): boolean {
 export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress }) => {
   const db = env.DB;
   const ip = clientAddress || request.headers.get('x-forwarded-for') || 'unknown';
+  const isJson = request.headers.get('Accept') === 'application/json';
 
   const limited = await checkRateLimit(db, `login:ip:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW);
   if (limited) {
+    if (isJson) {
+      return new Response(JSON.stringify({ error: 'Too many attempts. Try again later.' }), {
+        status: 429, headers: { 'Content-Type': 'application/json' }
+      });
+    }
     return new Response(null, {
       status: 429,
       headers: { 'Retry-After': '900' },
@@ -34,11 +40,21 @@ export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress
   const password = formData.get('password')?.toString();
 
   if (!email || !password) {
+    if (isJson) {
+      return new Response(JSON.stringify({ error: 'Email and password are required' }), {
+        status: 400, headers: { 'Content-Type': 'application/json' }
+      });
+    }
     return redirect('/admin/login/?error=Email and password are required');
   }
 
   const { locked: accountLocked } = await getAccountLockout(db, email);
   if (accountLocked) {
+    if (isJson) {
+      return new Response(JSON.stringify({ error: 'Account temporarily locked. Try again later.' }), {
+        status: 403, headers: { 'Content-Type': 'application/json' }
+      });
+    }
     return redirect('/admin/login/?error=Account temporarily locked. Try again later.');
   }
 
@@ -48,6 +64,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress
 
   if (!adminEmail || !adminPasswordHash) {
     console.error('ADMIN_EMAIL or ADMIN_PASSWORD_HASH not configured');
+    if (isJson) {
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500, headers: { 'Content-Type': 'application/json' }
+      });
+    }
     return redirect('/admin/login/?error=Server configuration error');
   }
 
@@ -55,6 +76,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress
 
   if (isInvalid) {
     await recordFailedAttempt(db, email, ACCOUNT_LOCKOUT_MAX, ACCOUNT_LOCKOUT_DURATION);
+    if (isJson) {
+      return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
+        status: 401, headers: { 'Content-Type': 'application/json' }
+      });
+    }
     return redirect('/admin/login/?error=Invalid credentials');
   }
 
@@ -68,6 +94,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress
     sameSite: 'strict',
     maxAge: 60 * 60 * 24,
   });
+
+  if (isJson) {
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200, headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
   return redirect('/admin/dashboard/');
 };
