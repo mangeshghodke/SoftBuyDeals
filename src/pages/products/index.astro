@@ -69,7 +69,7 @@ function pageRange(): (number | '...')[] {
 }
 ---
 
-<BaseLayout title="Products" description="Browse our curated collection of best deals on Amazon.in">
+<BaseLayout title={selectedCategory ? `${selectedCategory} Deals on Amazon.in` : 'Products & Best Deals on Amazon.in'} description={selectedCategory ? `Best ${selectedCategory} deals curated from Amazon.in — compare ratings, prices and offers before you buy.` : 'Browse our curated collection of top-rated products with the best deals on Amazon.in.'}>
   <section class="py-8 md:py-16">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <Breadcrumb items={selectedCategory
@@ -142,6 +142,7 @@ function pageRange(): (number | '...')[] {
         </div>
       ) : (
         <>
+        <h2 class="sr-only">{selectedCategory ? `${selectedCategory} Products` : 'All Products'}</h2>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {products.map(product => (
             <ProductCard product={product} />

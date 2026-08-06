@@ -6,6 +6,8 @@ export const GET: APIRoute = () => {
 
   return new Response(`User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 Sitemap: ${sitemapURL.href}
 `, {
     headers: {

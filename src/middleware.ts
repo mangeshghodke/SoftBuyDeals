@@ -18,6 +18,13 @@ const CSP = [
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
+
+  if (url.hostname === 'www.softbuydeals.in') {
+    const target = new URL(context.request.url);
+    target.host = 'softbuydeals.in';
+    return context.redirect(target.toString(), 301);
+  }
+
   const pathname = url.pathname.replace(/\/$/, '') || '/';
 
   const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route));

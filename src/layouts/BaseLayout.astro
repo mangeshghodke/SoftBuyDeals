@@ -25,9 +25,9 @@ interface Props {
 const {
   title,
   description = SITE_DESCRIPTION,
-  image = '/og-image.svg',
-  imageWidth,
-  imageHeight,
+  image = '/og-image.png',
+  imageWidth = '1870',
+  imageHeight = '1040',
   type = 'website',
   publishedDate,
   modifiedDate,
@@ -40,6 +40,7 @@ const canonicalPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `$
 const canonicalURL = new URL(canonicalPath, siteURL).href;
 const imageURL = new URL(image, siteURL).href;
 const fullTitle = `${title} | ${SITE_TITLE}`;
+const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
 const structuredData =
   type === 'article'
     ? {
@@ -72,6 +73,15 @@ const structuredData =
         name: SITE_TITLE,
         description,
         url: siteURL,
+        ...(isHome
+          ? {
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: `${siteURL}products/?q={search_term_string}`,
+                'query-input': 'required name=search_term_string',
+              },
+            }
+          : {}),
       };
 ---
 
@@ -79,7 +89,8 @@ const structuredData =
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#7c3aed" />
     <link rel="icon" type="image/svg+xml" href={resolvePath('/favicon.svg')} />
     <link rel="canonical" href={canonicalURL} />
     <link rel="sitemap" href={resolvePath('/sitemap.xml')} />
@@ -92,6 +103,7 @@ const structuredData =
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content={type} />
+    <meta property="og:locale" content="en_IN" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={imageURL} />
     {imageWidth && <meta property="og:image:width" content={imageWidth} />}
@@ -106,6 +118,7 @@ const structuredData =
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@softbuydeals" />
+    <meta name="twitter:creator" content="@softbuydeals" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageURL} />
