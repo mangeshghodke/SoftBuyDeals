@@ -164,6 +164,29 @@ const ratingNum = product.rating ? parseFloat(product.rating) || '' : '';
   document.addEventListener('astro:page-load', function() {
     if (document.getElementById('generate-description')?.dataset.inited) return;
     document.getElementById('generate-description')?.setAttribute('data-inited', '1');
+
+    function normalizePrice(input) {
+      if (!input) return;
+      var value = input.value.trim();
+      if (!value || value.startsWith('₹')) return;
+      input.value = '₹' + value;
+    }
+
+    ['price', 'originalPrice'].forEach(function(id) {
+      var input = document.getElementById(id);
+      if (input) {
+        input.addEventListener('blur', function() { normalizePrice(input); });
+      }
+    });
+
+    var editForm = document.querySelector('form[method="POST"]');
+    if (editForm) {
+      editForm.addEventListener('submit', function() {
+        normalizePrice(document.getElementById('price'));
+        normalizePrice(document.getElementById('originalPrice'));
+      });
+    }
+
     document.getElementById('generate-description')?.addEventListener('click', async function() {
       var title = document.getElementById('title').value.trim();
       var category = document.getElementById('category').value.trim();

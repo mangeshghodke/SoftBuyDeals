@@ -161,6 +161,25 @@ const error = Astro.url.searchParams.get('error');
     if (document.getElementById('generate-description')?.dataset.inited) return;
     document.getElementById('generate-description')?.setAttribute('data-inited', '1');
 
+    function normalizePrice(input) {
+      if (!input) return;
+      var value = input.value.trim();
+      if (!value || value.startsWith('₹')) return;
+      input.value = '₹' + value;
+    }
+
+    ['price', 'originalPrice'].forEach(function(id) {
+      var input = document.getElementById(id);
+      if (input) {
+        input.addEventListener('blur', function() { normalizePrice(input); });
+      }
+    });
+
+    document.querySelector('form[action="/api/products/"]')?.addEventListener('submit', function() {
+      normalizePrice(document.getElementById('price'));
+      normalizePrice(document.getElementById('originalPrice'));
+    });
+
     document.getElementById('imageUrl')?.addEventListener('input', function(e) {
       const container = document.getElementById('image-preview');
       const img = document.getElementById('preview-img');
