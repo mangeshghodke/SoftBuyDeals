@@ -9,6 +9,23 @@ function isFormSubmit(request: Request): boolean {
   return request.headers.get('Accept') !== 'application/json';
 }
 
+async function getBody(request: Request): Promise<{ get: (key: string) => string | undefined }> {
+  const contentType = request.headers.get('Content-Type') || '';
+  const values: Record<string, string> = {};
+  if (contentType.includes('application/json')) {
+    const data = await request.json().catch(() => ({})) as Record<string, unknown>;
+    for (const [k, v] of Object.entries(data)) {
+      if (v !== undefined && v !== null) values[k] = String(v);
+    }
+  } else {
+    const formData = await request.formData();
+    for (const [k, v] of formData.entries()) {
+      values[k] = String(v);
+    }
+  }
+  return { get: (key: string) => values[key] };
+}
+
 function formatRating(rating: string | undefined): string | undefined {
   if (!rating) return rating;
   const num = parseFloat(rating);
@@ -69,10 +86,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
   const { authed, token } = checkAuth(cookies, secret);
   if (!authed) return redirect('/admin/login/');
 
-  const formData = await request.formData();
+  const body = await getBody(request);
   const isJson = request.headers.get('Accept') === 'application/json';
 
-  const csrfToken = formData.get('_csrf')?.toString();
+  const csrfToken = body.get('_csrf');
   if (!csrfToken || !validateCsrfToken(csrfToken, token!, secret)) {
     if (isJson) {
       return new Response(JSON.stringify({ error: 'Invalid CSRF token' }), {
@@ -82,24 +99,24 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
     return redirect('/admin/products/add/?error=Invalid+CSRF+token.+Please+try+again.');
   }
 
-  const existingId = formData.get('id')?.toString();
+  const existingId = body.get('id');
 
-  const rawRating = formData.get('rating')?.toString();
+  const rawRating = body.get('rating');
 
   const fields: Record<string, string | undefined> = {
-    title: formData.get('title')?.toString(),
-    price: formData.get('price')?.toString(),
-    originalPrice: formData.get('originalPrice')?.toString(),
-    imageUrl: formData.get('imageUrl')?.toString(),
-    imageUrl2: formData.get('imageUrl2')?.toString(),
-    imageUrl3: formData.get('imageUrl3')?.toString(),
-    amazonUrl: formData.get('amazonUrl')?.toString(),
-    affiliateUrl: formData.get('affiliateUrl')?.toString(),
-    description: formData.get('description')?.toString(),
+    title: body.get('title'),
+    price: body.get('price'),
+    originalPrice: body.get('originalPrice'),
+    imageUrl: body.get('imageUrl'),
+    imageUrl2: body.get('imageUrl2'),
+    imageUrl3: body.get('imageUrl3'),
+    amazonUrl: body.get('amazonUrl'),
+    affiliateUrl: body.get('affiliateUrl'),
+    description: body.get('description'),
     rating: formatRating(rawRating),
-    category: formData.get('category')?.toString(),
-    coupon: formData.get('coupon')?.toString(),
-    review: formData.get('review')?.toString(),
+    category: body.get('category'),
+    coupon: body.get('coupon'),
+    review: body.get('review'),
   };
 
   const errors = validateProductInput(fields);
@@ -134,7 +151,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
         status: 200, headers: { 'Content-Type': 'application/json' }
       });
     }
-    const pageAfterEdit = formData.get('page')?.toString() || '1';
+    const pageAfterEdit = body.get('page') || '1';
     return redirect(`/admin/dashboard/?page=${pageAfterEdit}`);
   }
 
@@ -196,10 +213,10 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
   const { authed, token } = checkAuth(cookies, secret);
   if (!authed) return redirect('/admin/login/');
 
-  const formData = await request.formData();
+  const body = await getBody(request);
   const isJson = request.headers.get('Accept') === 'application/json';
 
-  const csrfToken = formData.get('_csrf')?.toString();
+  const csrfToken = body.get('_csrf');
   if (!csrfToken || !validateCsrfToken(csrfToken, token!, secret)) {
     if (isJson) {
       return new Response(JSON.stringify({ error: 'Invalid CSRF token' }), {
@@ -209,7 +226,7 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
     return redirect('/admin/dashboard/?error=Invalid+CSRF+token');
   }
 
-  const id = formData.get('id')?.toString();
+  const id = body.get('id');
   if (!id) {
     if (isJson) {
       return new Response(JSON.stringify({ error: 'Product ID required' }), {
@@ -229,22 +246,22 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
     return redirect('/admin/dashboard/?error=Product+not+found');
   }
 
-  const rawRating = formData.get('rating')?.toString();
+  const rawRating = body.get('rating');
 
   const fields: Record<string, string | undefined> = {
-    title: formData.get('title')?.toString(),
-    price: formData.get('price')?.toString(),
-    originalPrice: formData.get('originalPrice')?.toString(),
-    imageUrl: formData.get('imageUrl')?.toString(),
-    imageUrl2: formData.get('imageUrl2')?.toString(),
-    imageUrl3: formData.get('imageUrl3')?.toString(),
-    amazonUrl: formData.get('amazonUrl')?.toString(),
-    affiliateUrl: formData.get('affiliateUrl')?.toString(),
-    description: formData.get('description')?.toString(),
+    title: body.get('title'),
+    price: body.get('price'),
+    originalPrice: body.get('originalPrice'),
+    imageUrl: body.get('imageUrl'),
+    imageUrl2: body.get('imageUrl2'),
+    imageUrl3: body.get('imageUrl3'),
+    amazonUrl: body.get('amazonUrl'),
+    affiliateUrl: body.get('affiliateUrl'),
+    description: body.get('description'),
     rating: formatRating(rawRating),
-    category: formData.get('category')?.toString(),
-    coupon: formData.get('coupon')?.toString(),
-    review: formData.get('review')?.toString(),
+    category: body.get('category'),
+    coupon: body.get('coupon'),
+    review: body.get('review'),
   };
 
   const errors = validateProductInput(fields);
@@ -268,7 +285,7 @@ export const PUT: APIRoute = async ({ request, cookies, redirect }) => {
       status: 200, headers: { 'Content-Type': 'application/json' }
     });
   }
-  const pageAfterEditPut = formData.get('page')?.toString() || '1';
+  const pageAfterEditPut = body.get('page') || '1';
   return redirect(`/admin/dashboard/?page=${pageAfterEditPut}`);
 };
 

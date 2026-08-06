@@ -35,9 +35,18 @@ export const POST: APIRoute = async ({ request, cookies, redirect, clientAddress
     });
   }
 
-  const formData = await request.formData();
-  const email = formData.get('email')?.toString();
-  const password = formData.get('password')?.toString();
+  const contentType = request.headers.get('Content-Type') || '';
+  let email: string | undefined;
+  let password: string | undefined;
+  if (contentType.includes('application/json')) {
+    const data = await request.json().catch(() => ({})) as Record<string, unknown>;
+    email = data.email?.toString();
+    password = data.password?.toString();
+  } else {
+    const formData = await request.formData();
+    email = formData.get('email')?.toString();
+    password = formData.get('password')?.toString();
+  }
 
   if (!email || !password) {
     if (isJson) {
