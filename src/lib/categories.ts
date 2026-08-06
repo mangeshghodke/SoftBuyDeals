@@ -6,6 +6,32 @@ export interface CategoryGuide {
   budgetAdvice: string;
 }
 
+export const GENERIC_GUIDE: CategoryGuide = {
+  description: 'Practical buying tips and advice to help you choose the right product at the best price on Amazon.in.',
+  guideTitle: 'Buying Guide: How to Choose the Right Product',
+  guideIntro: 'Not sure what to look for? Start with these basics \u2014 compare prices, read reviews, check warranties, and buy from trusted sellers.',
+  tips: [
+    'Compare prices across sellers for the same product before you buy.',
+    'Read recent reviews, especially ones written after months of use.',
+    'Check the seller rating, return policy, and warranty coverage.',
+    'Verify the product specifications match your needs before ordering.',
+    'Look for the best value during Amazon sale events, not just the lowest price.',
+  ],
+  budgetAdvice: 'Set a budget before you start browsing and stick to it. Prioritise features you use daily over flashy extras you rarely touch.',
+};
+
+export function getCategoryGuide(category: string): CategoryGuide {
+  return CATEGORY_GUIDES[category] || GENERIC_GUIDE;
+}
+
+export function getGuideSlug(category: string): string {
+  return encodeURIComponent(category.toLowerCase().trim());
+}
+
+export function getCategoryKey(slug: string): string | undefined {
+  return Object.keys(CATEGORY_GUIDES).find(k => k.toLowerCase().trim() === slug.toLowerCase().trim());
+}
+
 export const CATEGORY_GUIDES: Record<string, CategoryGuide> = {
   Electronics: {
     description: 'Discover the latest electronics at unbeatable prices — from smartphones and laptops to headphones and smart home devices. Our curated electronics collection features top-rated products from leading brands.',
@@ -111,7 +137,321 @@ export const CATEGORY_GUIDES: Record<string, CategoryGuide> = {
     ],
     budgetAdvice: 'Buying used books from sellers on Amazon can save 50\u201370%. Kindle editions are often cheaper than paperbacks and don\u2019t require shelf space.',
   },
+  'Health & Personal Care': {
+    description: 'Discover health and personal care products \u2014 from supplements and fitness gear to wellness devices and personal hygiene essentials. Quality picks at great prices on Amazon.in.',
+    guideTitle: 'Health & Personal Care Buying Guide: Wellness on a Budget',
+    guideIntro: 'Choosing the right health and personal care products can be overwhelming. Here\u2019s what to look for before you buy.',
+    tips: [
+      'Check for certifications like FSSAI and GMP when buying supplements or wellness products in India.',
+      'For fitness gear, look at build quality and warranty \u2014 a treadmill or massager is a long-term investment.',
+      'Read reviews mentioning skin or body type to ensure a product suits you before purchasing.',
+      'Avoid products with unverifiable claims; genuine brands share ingredient lists and dosage details openly.',
+      'Compare prices across sizes and packs \u2014 larger packs of supplements often cost less per serving.',
+    ],
+    budgetAdvice: 'Start with essentials that deliver daily value: a good thermometer, basic supplements, and quality personal care items. Upgrade to premium devices only when you know you\u2019ll use them.',
+  },
+  'Computers & Accessories': {
+    description: 'Find the best deals on laptops, keyboards, mice, monitors, and computer accessories. Curated for work, study, and gaming on Amazon.in.',
+    guideTitle: 'Computers & Accessories Buying Guide: Laptops, Peripherals & More',
+    guideIntro: 'Whether you need a laptop for work or accessories to upgrade your setup, here\u2019s how to choose what actually matters.',
+    tips: [
+      'For laptops, prioritise RAM (16GB recommended) and storage (SSD over HDD) \u2014 these matter more than processor brand for daily use.',
+      'Check the port selection: USB-C with DisplayPort is essential if you plan to use external monitors.',
+      'Keyboards and mice: choose mechanical for typing-heavy work and ergonomic designs if you work long hours.',
+      'Monitor resolution matters more than size for productivity \u2014 a 27" QHD is better than a 32" FHD for work.',
+      'Compare warranty and service support, especially for laptops \u2014 extended warranties are often worth it.',
+    ],
+    budgetAdvice: 'A laptop with an i5/Ryzen 5, 16GB RAM, and 512GB SSD covers 90% of work and study needs. Invest the rest in a good keyboard, mouse, and monitor rather than a pricier CPU.',
+  },
+  'Bags, Wallets and Luggage': {
+    description: 'Shop the best deals on backpacks, trolley bags, wallets, and travel luggage. Durable picks at great prices on Amazon.in.',
+    guideTitle: 'Bags, Wallets & Luggage Buying Guide: Travel Smart',
+    guideIntro: 'A good bag or suitcase makes travel easier. Here\u2019s what to consider before choosing your next one.',
+    tips: [
+      'Check the capacity and dimensions against airline cabin size limits (usually 55x35x20 cm) for carry-on luggage.',
+      'Material matters: polycarbonate hard-shell luggage resists scratches; ballistic nylon bags are durable and flexible.',
+      'For backpacks, look for padded shoulder straps, breathable back panels, and a laptop sleeve if you carry tech.',
+      'Wallets: RFID-blocking designs protect against contactless card skimming \u2014 worth the small premium.',
+      'Check the wheels and handles via reviews \u2014 smooth zippers and wheels make all the difference.',
+    ],
+    budgetAdvice: 'For occasional travellers, a good 20\u201324 inch polycarbonate trolley under \u20b93,000 and a versatile daypack cover most needs. Invest more only if you travel frequently.',
+  },
+  'Clothing & Accessories': {
+    description: 'Shop stylish clothing and accessories \u2014 shirts, kurtas, jeans, jackets, and more. Quality apparel at prices you\u2019ll love on Amazon.in.',
+    guideTitle: 'Clothing & Accessories Buying Guide: Dress Well, Spend Less',
+    guideIntro: 'Buying clothes online is easy \u2014 buying clothes that fit well is the hard part. Here\u2019s how to get it right every time.',
+    tips: [
+      'Always check the size chart against your measurements, not just the size label \u2014 Indian and international brands fit differently.',
+      'Read fabric composition: cotton is breathable for Indian summers, while blends offer stretch and wrinkle resistance.',
+      'Check wash-care labels \u2014 some fabrics (like silk or certain knits) need dry cleaning, adding to the long-term cost.',
+      'Look at customer photos in reviews to see how the colour and fit look on real people, not just models.',
+      'Verify the return policy before ordering apparel \u2014 easy returns are essential when size or colour doesn\u2019t match.',
+    ],
+    budgetAdvice: 'Build a capsule wardrobe of versatile essentials \u2014 white shirts, dark jeans, neutral kurtas \u2014 before buying trend pieces. Amazon Fashion sale days offer the deepest discounts.',
+  },
+  'Car & Motorbike': {
+    description: 'Upgrade your ride with car and bike accessories \u2014 from seat covers and dash cams to helmets and bike gear. Great deals on Amazon.in.',
+    guideTitle: 'Car & Motorbike Accessories Buying Guide: Ride Better',
+    guideIntro: 'Car and bike accessories can transform your vehicle \u2014 but not all are worth the money. Here\u2019s what to prioritise.',
+    tips: [
+      'Dash cams: look for 1080p minimum, night vision, and loop recording. Check Indian heat tolerance and capacitor designs that survive summers.',
+      'Seat covers should be vehicle-specific, not universal \u2014 universal ones shift and look loose over time.',
+      'For bike gear, always buy ISI or DOT-certified helmets \u2014 a certified helmet protects more than a stylish one.',
+      'Tyres and bulbs: match the exact size and specification from your vehicle manual \u2014 wrong specs hurt performance and safety.',
+      'Check the warranty and return policy \u2014 electrical accessories like LED bulbs fail, so buy from reliable sellers.',
+    ],
+    budgetAdvice: 'Start with safety essentials: a certified helmet, dash cam, and a good air pump. Cosmetic upgrades like spoilers and custom lights offer little resale value \u2014 spend your budget on what matters.',
+  },
+  'Washing Machine Cleaners': {
+    description: 'Keep your washing machine fresh and hygienic with effective washing machine cleaners. Simple maintenance, spotless results on Amazon.in.',
+    guideTitle: 'Washing Machine Cleaner Buying Guide: Remove Odour & Gunk',
+    guideIntro: 'Washing machines build up detergent residue, limescale, and bacteria over time. Regular cleaning keeps clothes fresh and extends the machine\u2019s life.',
+    tips: [
+      'Clean front-load washers monthly with a descaler to prevent mildew and odours in the door gasket and drum.',
+      'For top-load machines, a drum cleaner tablet once a month removes residue that causes musty-smelling clothes.',
+      'Hard water areas in India need descaling more frequently \u2014 limescale deposits reduce cleaning efficiency.',
+      'Run a hot water cycle (60\u00b0C+) with the cleaner for best results; cold cycles are less effective.',
+      'Check the pack size against your machine\u2019s drum capacity \u2014 using too little won\u2019t clean thoroughly.',
+    ],
+    budgetAdvice: 'A pack of cleaning tablets under \u20b9300 lasts several months \u2014 the cheapest maintenance that keeps your machine and clothes in top condition.',
+  },
+  'Home Improvement': {
+    description: 'Upgrade your home with tools, hardware, and improvement products \u2014 from power tools to plumbing and fixing essentials. Best deals on Amazon.in.',
+    guideTitle: 'Home Improvement Buying Guide: Tools & Fixes Done Right',
+    guideIntro: 'Whether it\u2019s a quick fix or a full project, the right tools and materials make home improvement easier. Here\u2019s how to choose.',
+    tips: [
+      'Power tools: check voltage and wattage for Indian home use (220\u2013240V). Cordless tools offer convenience but need compatible batteries.',
+      'For drilling into concrete, use a hammer drill with masonry bits \u2014 standard drills won\u2019t cut it.',
+      'Check tool kit completeness: a basic kit with screwdrivers, pliers, and a measuring tape covers 80% of home tasks.',
+      'Read reviews for build quality and after-sales service \u2014 cheap tools break fast and cost more to replace.',
+      'Safety first: buy quality safety gear (gloves, goggles) alongside any power tool purchase.',
+    ],
+    budgetAdvice: 'Start with a good quality basic tool kit (\u20b91,000\u2013\u20b92,000) and add specific tools only when a task requires them. For one-time projects, consider renting heavy equipment instead of buying.',
+  },
+  Jewellery: {
+    description: 'Find elegant jewellery \u2014 gold-plated, silver, and fashion pieces for every occasion. Beautiful designs at great prices on Amazon.in.',
+    guideTitle: 'Jewellery Buying Guide: Choose Pieces That Last',
+    guideIntro: 'Buying jewellery online requires checking quality and authenticity. Here\u2019s what to look for to avoid disappointment.',
+    tips: [
+      'Check the purity hallmark for gold (916 for 22K, 999 for 24K) and the hallmarking for silver (925) \u2014 verify before buying.',
+      'For gold-plated items, check the plating thickness \u2014 thicker plating (1 micron+) resists fading much longer.',
+      'Read reviews for tarnishing complaints \u2014 cheap fashion jewellery often tarnishes within weeks.',
+      'Check return and exchange policies, as sizing (rings, bangles) often needs adjustment after purchase.',
+      'Avoid high-priced "certified" claims without supporting documents; genuine sellers show certifications clearly.',
+    ],
+    budgetAdvice: 'For daily wear, invest in certified silver or quality gold-plated pieces. For occasional occasions, trendy fashion jewellery is fine \u2014 just keep expectations realistic about lifespan.',
+  },
+  Watches: {
+    description: 'Shop stylish watches \u2014 from premium analog and digital to smartwatches. Curated for every budget and occasion on Amazon.in.',
+    guideTitle: 'Watch Buying Guide: Analog, Digital or Smart?',
+    guideIntro: 'A watch is both a tool and a statement. Here\u2019s how to pick one that matches your style, needs, and budget.',
+    tips: [
+      'Decide between smart, quartz, and mechanical: smartwatches offer health tracking, quartz is accurate and low-maintenance, mechanicals are for enthusiasts.',
+      'Check water resistance ratings \u2014 3ATM is splash-proof, 10ATM suits swimming. Don\u2019t trust "water resistant" without a rating.',
+      'Sapphire crystal resists scratches better than mineral or acrylic glass \u2014 worth the premium for daily wear.',
+      'For smartwatches, check battery life and app compatibility with your phone (Android vs iOS).',
+      'Verify the strap material: stainless steel and silicone last; leather needs care and wears over time.',
+    ],
+    budgetAdvice: 'A reliable quartz watch under \u20b93,000 or a good entry smartwatch under \u20b95,000 covers most needs. Spend more only if you value premium materials or brand legacy.',
+  },
+  'Shoes & Handbags': {
+    description: 'Step out in style with footwear and handbags for every occasion. Comfortable, durable, and affordable picks on Amazon.in.',
+    guideTitle: 'Shoes & Handbags Buying Guide: Style Meets Comfort',
+    guideIntro: 'Comfort and durability are the real tests for shoes and bags. Here\u2019s how to choose well online.',
+    tips: [
+      'Check the material: genuine leather lasts years and moulds to your foot; synthetics are cheaper but wear faster.',
+      'Size matters most \u2014 refer to the size chart and read reviews about whether a brand runs small or large.',
+      'For running shoes, match the cushioning to your stride and running surface; check the drop and width options.',
+      'Handbags: check the number of compartments, strap length, and closure quality \u2014 these determine everyday usability.',
+      'Read reviews for durability issues like sole separation or zipper failures after a few weeks of use.',
+    ],
+    budgetAdvice: 'Invest in one quality pair of daily-use shoes and one versatile bag rather than several cheap ones. Amazon sales give the best prices on premium brands.',
+  },
+  'Toys & Games': {
+    description: 'Discover toys and games for kids of all ages \u2014 from educational toys and board games to remote-control fun. Great deals on Amazon.in.',
+    guideTitle: 'Toys & Games Buying Guide: Fun & Safe Choices',
+    guideIntro: 'The right toy entertains, educates, and grows with your child. Here\u2019s what to consider before you buy.',
+    tips: [
+      'Always check the recommended age range and safety standards (ISI/CE marks) \u2014 avoid small parts for younger kids.',
+      'Educational toys like building blocks and puzzles promote learning better than passive toys like plush figures.',
+      'Remote-control toys: check battery requirements and build quality \u2014 cheap RC toys break in days.',
+      'Board games build family bonding; choose games appropriate for the youngest player in the group.',
+      'Read reviews about durability and noise level \u2014 parents often report on both after a few weeks of play.',
+    ],
+    budgetAdvice: 'A few high-quality, open-ended toys (blocks, art supplies, board games) provide more lasting value than many cheap single-use toys.',
+  },
+  'Outdoor Living': {
+    description: 'Create a relaxing outdoor space with garden, patio, and camping products. Durable and weather-resistant picks on Amazon.in.',
+    guideTitle: 'Outdoor Living Buying Guide: Garden, Patio & Camping',
+    guideIntro: 'From balcony makeovers to camping trips, outdoor products need to withstand the elements. Here\u2019s how to choose.',
+    tips: [
+      'Check weather resistance: look for UV-stabilised plastics, rust-proof aluminium, and waterproof fabrics for outdoor gear.',
+      'Garden furniture: teak or aluminium resists rain well; avoid particle board that swells and warps outdoors.',
+      'For camping, a 3-season tent with a full rainfly and good ventilation suits Indian conditions best.',
+      'Patio umbrellas should be tilting, wind-resistant, and properly anchored \u2014 cheap ones topple in the first gust.',
+      'Read reviews about assembly difficulty \u2014 many outdoor products need setup, and some instructions are poor.',
+    ],
+    budgetAdvice: 'Start with a sturdy outdoor dining set and a good umbrella; add lighting and decor pieces over time. Buy off-season (before summer) for the best prices.',
+  },
+  'Office Products': {
+    description: 'Stock up on office essentials \u2014 stationery, organisers, printer supplies, and desk accessories. Quality products at great prices on Amazon.in.',
+    guideTitle: 'Office Products Buying Guide: Organise & Work Better',
+    guideIntro: 'Good office products make work smoother. Here\u2019s how to choose the essentials that actually improve your setup.',
+    tips: [
+      'Ergonomic desk accessories (monitor stands, wrist rests) prevent long-term strain \u2014 worth the investment if you sit long hours.',
+      'For paper products, check the GSM (grams per square metre) \u2014 80 GSM is standard, 100 GSM suits double-sided printing.',
+      'Desk organisers: measure your drawer and desk space before buying, and look for modular designs.',
+      'Ink and toner: verify the cartridge model against your printer \u2014 compatibility errors are the most common complaint.',
+      'Check shipping and return terms for bulk office supplies \u2014 damaged reams and cartridges happen.',
+    ],
+    budgetAdvice: 'Prioritise a good chair, monitor stand, and sufficient lighting before decorative organisers. Bulk-buy stationery during sale days for discounts.',
+  },
+  Baby: {
+    description: 'Shop baby essentials \u2014 gear, feeding, diapering, and clothing. Safe, comfortable, and affordable picks for your little one on Amazon.in.',
+    guideTitle: 'Baby Essentials Buying Guide: Safe & Smart Picks',
+    guideIntro: 'Babies need products that are safe, gentle, and practical. Here\u2019s how to choose what matters most.',
+    tips: [
+      'Safety certifications matter most \u2014 look for ISI/BIS marks and age-appropriate designs for all baby gear.',
+      'Feeding items should be BPA-free; check labels for the "BPA Free" mark on bottles and utensils.',
+      'Diapers: compare absorbency, fit, and price per unit \u2014 not just pack price \u2014 when choosing a brand.',
+      'Baby clothing: choose soft, breathable cotton and easy-open designs (snap buttons, elastic waistbands) for quick changes.',
+      'Read reviews from other parents about real-world durability and washing behaviour before buying.',
+    ],
+    budgetAdvice: 'You don\u2019t need everything at once. Essentials like diapers, wipes, and a few outfits are the core; buy gear (strollers, cribs) only as your baby\u2019s needs grow.',
+  },
+  'Irons, Steamers & Accessories': {
+    description: 'Wrinkle-free clothes in minutes with the best irons, steamers, and accessories. Fast, efficient, and affordable on Amazon.in.',
+    guideTitle: 'Iron & Steamer Buying Guide: Wrinkle-Free in Minutes',
+    guideIntro: 'From dry irons to garment steamers, the right device saves time and keeps clothes looking sharp. Here\u2019s how to choose.',
+    tips: [
+      'Choose a steamer for delicate fabrics and quick touch-ups; use a traditional iron for crisp creases and cotton.',
+      'Check the soleplate: non-stick or ceramic soleplates glide smoothly and resist scorching better than basic metal.',
+      'For steam irons, a higher steam output (25+ g/min) removes stubborn wrinkles faster \u2014 check the specification.',
+      'Weight matters: lightweight irons (under 1.5kg) are easier to handle for long ironing sessions.',
+      'Check the cord length and water tank \u2014 a long cord and a visible water level make ironing much easier.',
+    ],
+    budgetAdvice: 'A good steam iron under \u20b91,500 covers most homes. If you wear delicate fabrics often, add a compact garment steamer under \u20b92,000.',
+  },
+  'Home & Kitchen Appliances': {
+    description: 'Shop essential home and kitchen appliances \u2014 from mixers and blenders to water purifiers and cookers. Reliable picks on Amazon.in.',
+    guideTitle: 'Home & Kitchen Appliances Buying Guide: Choose Wisely',
+    guideIntro: 'Appliances are long-term investments. Here\u2019s how to choose ones that perform well, last long, and offer good service support.',
+    tips: [
+      'Check power consumption and energy rating \u2014 a star-rated appliance costs more upfront but saves money over years of use.',
+      'Warranty and service network matter: choose brands with service centres near you for appliances like purifiers and mixers.',
+      'Read reviews for real-world performance \u2014 noise level, build quality, and ease of cleaning matter more than glossy specs.',
+      'Verify the capacity fits your needs: a 1.5L mixer for a small family, 5L+ air fryer for a large household.',
+      'Compare seller warranty vs brand warranty \u2014 some marketplace sellers offer shorter or unclear warranty coverage.',
+    ],
+    budgetAdvice: 'Buy the best you can afford for daily-use appliances (mixer, cooker) and choose value models for occasional-use items. Sale events offer the steepest discounts on appliances.',
+  },
+  'Sports, Fitness & Outdoors': {
+    description: 'Stay active with sports and fitness gear \u2014 from home workout equipment to outdoor activity essentials. Great deals on Amazon.in.',
+    guideTitle: 'Sports & Fitness Buying Guide: Train at Home, Play Outside',
+    guideIntro: 'Whether you\u2019re setting up a home gym or gearing up for a sport, the right equipment makes all the difference. Here\u2019s how to choose.',
+    tips: [
+      'For home workouts, resistance bands, dumbbells, and a yoga mat cover the most exercises \u2014 start with these.',
+      'Check weight limits and build quality on equipment like pull-up bars and exercise benches \u2014 safety first.',
+      'Fitness trackers: verify battery life, water resistance, and app support before buying.',
+      'Outdoor gear should match your sport \u2014 proper shoes for running, grip-friendly balls, and certified safety gear where needed.',
+      'Read reviews about stability and durability for gym equipment \u2014 wobble and rust are common complaints on cheap gear.',
+    ],
+    budgetAdvice: 'You don\u2019t need a full gym. A mat, dumbbells, and resistance bands under \u20b93,000 provide a complete bodyweight workout at home.',
+  },
+  'Grocery & Gourmet Foods': {
+    description: 'Shop groceries and gourmet foods \u2014 from daily essentials to premium treats and snacks. Fresh quality at great prices on Amazon.in.',
+    guideTitle: 'Grocery & Gourmet Foods Buying Guide: Shop Smarter',
+    guideIntro: 'Buying groceries online is convenient, but quality and value require attention. Here\u2019s what to check before adding to cart.',
+    tips: [
+      'Check the expiry and manufacturing dates on all perishables \u2014 online stock can sit in warehouses for weeks.',
+      'Compare price per kilogram or per unit, not just pack price \u2014 bigger packs aren\u2019t always cheaper.',
+      'Read reviews for freshness and packaging quality \u2014 damaged or stale delivery is the top complaint in grocery.',
+      'For gourmet items, check the origin and certification (organic, FSSAI) to ensure authenticity.',
+      'Note the return policy on food \u2014 most platforms don\u2019t accept returns on opened perishables, so check before buying.',
+    ],
+    budgetAdvice: 'Buy staples (rice, oil, pulses) in bulk during sales and use subscription delivery options for everyday savings. Save gourmet treats for special occasions.',
+  },
+  Shoes: {
+    description: 'Shop the best deals on shoes for men, women, and kids \u2014 from casual sneakers to formal footwear. Comfortable, durable picks on Amazon.in.',
+    guideTitle: 'Shoe Buying Guide: Comfort That Lasts',
+    guideIntro: 'The right pair of shoes protects your feet and lasts longer. Here\u2019s how to choose shoes that fit well and hold up.',
+    tips: [
+      'Fit is king: buy shoes in the evening when feet are slightly swollen, and check the size chart for each brand.',
+      'Read reviews for sizing notes ("runs small", "true to size") \u2014 these are the most reliable fit signals.',
+      'Check the sole material: rubber soles offer better grip than PVC; check heel height for formal shoes.',
+      'For sport shoes, match cushioning and support to your activity \u2014 running, walking, and gym need different features.',
+      'Verify the return policy \u2014 with shoes, returns are common due to fit issues, so easy returns are a must.',
+    ],
+    budgetAdvice: 'Spend more on shoes you wear daily (work, sports) and save on occasional-use pairs. Amazon sales offer the best prices on premium footwear brands.',
+  },
+  'Light Bulbs': {
+    description: 'Brighten your home efficiently with LED bulbs, smart bulbs, and lighting solutions. Energy-saving picks at great prices on Amazon.in.',
+    guideTitle: 'LED Bulb Buying Guide: Bright, Efficient Lighting',
+    guideIntro: 'The right bulb saves electricity and sets the right mood. Here\u2019s how to choose the perfect lighting for every room.',
+    tips: [
+      'Check the wattage and lumens: brightness is measured in lumens, not watts \u2014 a 9W LED (~800 lumens) replaces a 60W incandescent.',
+      'Colour temperature matters: warm white (2700K) suits bedrooms, cool white (6000K) works best in kitchens and studies.',
+      'Choose BIS-marked, ISI-certified LEDs \u2014 unbranded bulbs fail fast and can flicker annoyingly.',
+      'Smart bulbs: check compatibility with Alexa or Google Home and the required app before buying.',
+      'Check the bulb base type (E27, B22) against your fixture before ordering.',
+    ],
+    budgetAdvice: 'Replace all fixtures with BIS-certified LEDs in one go \u2014 the electricity savings pay for themselves within months. Smart bulbs are a fun upgrade but optional.',
+  },
+  'Under-Bed Storage': {
+    description: 'Maximise your space with under-bed storage boxes, organisers, and containers. Smart solutions at great prices on Amazon.in.',
+    guideTitle: 'Under-Bed Storage Buying Guide: Declutter the Hidden Space',
+    guideIntro: 'Under-bed space is prime real estate for storage. Here\u2019s how to choose containers that are durable, accessible, and suit your needs.',
+    tips: [
+      'Measure the clearance under your bed before buying \u2014 account for bed frames and legs, not just the floor space.',
+      'Check the material: fabric boxes are lightweight and foldable; plastic bins protect better against dust and moisture.',
+      'Look for wheels or handles on larger boxes \u2014 sliding heavy storage out from under the bed gets tiring fast.',
+      'Consider clear or labelled containers so you can find items without unpacking everything.',
+      'Check the load capacity \u2014 a box holding winter blankets or books needs strong seams and reinforced bottoms.',
+    ],
+    budgetAdvice: 'Measure first, then buy a mix: a couple of sturdy plastic bins for seasonal items and fabric organisers for everyday things. This combination maximises space affordably.',
+  },
+  Ladders: {
+    description: 'Reach new heights safely with stepladders, extension ladders, and platform ladders. Sturdy and certified options on Amazon.in.',
+    guideTitle: 'Ladder Buying Guide: Safe Steps, Right Height',
+    guideIntro: 'A ladder is a safety purchase as much as a utility. Here\u2019s how to choose the right type and height for your needs.',
+    tips: [
+      'Check the weight capacity and choose a ladder rated higher than your weight plus the tools you\u2019ll carry.',
+      'Look for certifications (BIS/ISI) and non-slip feet \u2014 these are the key safety features on any ladder.',
+      'Choose the working height carefully: you should never stand on the top two steps of a stepladder.',
+      'For outdoor work, aluminium ladders are lightweight and rust-resistant; fibreglass suits electrical work.',
+      'Read reviews about stability and wobble \u2014 a cheap wobbly ladder is a serious injury risk.',
+    ],
+    budgetAdvice: 'Buy a ladder with genuine certifications and sturdy construction even if it costs more \u2014 it\u2019s a safety product you\u2019ll keep for years. A 3-step ladder covers most home needs.',
+  },
+  'Magnetic Boards': {
+    description: 'Stay organised with magnetic boards, whiteboards, and memo boards for home and office. Stylish and functional on Amazon.in.',
+    guideTitle: 'Magnetic Board Buying Guide: Organise & Inspire',
+    guideIntro: 'A magnetic board keeps plans visible and clutter off your desk. Here\u2019s how to choose the right board for your space.',
+    tips: [
+      'Choose the size based on your wall space and purpose \u2014 a small board suits notes, a larger one suits plans and schedules.',
+      'Check the mounting hardware included: some boards need additional wall anchors for secure installation.',
+      'Magnetic strength matters \u2014 cheap boards lose magnetism over time or struggle with heavier magnets.',
+      'For whiteboard surfaces, confirm the markers are erasable and the surface resists ghosting (stains).',
+      'Match the frame and colour to your room decor for a polished look.',
+    ],
+    budgetAdvice: 'A mid-range magnetic board with good magnetism and a clean finish is worth the small premium over the cheapest option. Measure your wall and buy the right size the first time.',
+  },
+  'Hair Dryers': {
+    description: 'Find the perfect hair dryer for fast, gentle drying \u2014 from budget to professional. Powerful and durable options on Amazon.in.',
+    guideTitle: 'Hair Dryer Buying Guide: Fast Drying Without Damage',
+    guideIntro: 'The right hair dryer dries faster with less heat damage. Here\u2019s what to check before you buy.',
+    tips: [
+      'Look for wattage between 1200\u20132000W \u2014 higher wattage dries faster, but ionic technology protects hair at lower heat.',
+      'Ionic dryers reduce frizz and static \u2014 a real advantage for Indian humidity and frizzy hair.',
+      'Multiple heat/speed settings matter \u2014 low heat with high airflow dries gently and safely.',
+      'Check the nozzle attachments: a concentrator for styling and a diffuser for curly hair add versatility.',
+      'Read reviews about noise level and overheating \u2014 cheap dryers can shut off or burn out quickly.',
+    ],
+    budgetAdvice: 'A mid-range ionic dryer under \u20b92,500 offers pro-level results without the salon price tag. Choose a trusted brand with local service support.',
+  },
 };
+
+export const DEFAULT_CATEGORY_ICON = '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>';
 
 export const CATEGORY_ICONS: Record<string, string> = {
   Electronics: '<path d="M9 3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3V3Zm0 1H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-3v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V4Zm2 0h2V3h-2v1Z"/><rect x="9" y="10" width="6" height="6" rx="1"/>',
@@ -122,6 +462,30 @@ export const CATEGORY_ICONS: Record<string, string> = {
   'Fashion & Beauty': '<path d="M7 4.5a4 4 0 0 1 4 0l1 .5 1-.5a4 4 0 0 1 4 0v.5A4 4 0 0 1 17 8H7a4 4 0 0 1 0-3.5Z"/><path d="M12 8v4"/><path d="M8 18a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4H8v-4Z"/>',
   Gaming: '<path d="M6 12H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><path d="M6 12v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/>',
   Books: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.5a1.5 1.5 0 0 0 0 3H19"/><path d="M4 19.5V6"/>',
+  'Health & Personal Care': '<path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 5 23.5 8.5 21.5 12.5 19 16.65 12 21 12 21Z"/>',
+  'Computers & Accessories': '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  'Bags, Wallets and Luggage': '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/>',
+  'Clothing & Accessories': '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23Z"/>',
+  'Car & Motorbike': '<path d="M5 11 7 7h10l2 4M5 11v6a1 1 0 0 0 1 1h2M5 11h14M19 11v6a1 1 0 0 1-1 1h-2"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/>',
+  'Washing Machine Cleaners': '<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="14" r="4"/><circle cx="12" cy="6" r="0.5"/><circle cx="9" cy="6" r="0.5"/><circle cx="15" cy="6" r="0.5"/>',
+  'Home Improvement': '<path d="m15 5 4 4M13 7l4 4-8.5 8.5a2.12 2.12 0 0 1-3-3Z"/><path d="M6 21l3-3"/>',
+  Jewellery: '<path d="M6 3h12l4 6-10 12L2 9Z"/><path d="M2 9h20M12 21 9 9l3-6 3 6-3 12"/>',
+  Watches: '<circle cx="12" cy="12" r="6"/><path d="M12 9v3l2 2M9 3h6M9 21h6"/>',
+  'Shoes & Handbags': '<path d="M4 16a8 8 0 0 1 8-8h4l2 3-2 3h-5l-1 2H4Z"/><path d="M2 20h16a2 2 0 0 0 2-2v-2"/>',
+  'Toys & Games': '<path d="M6 11h4M8 9v4"/><path d="M15.5 9h.01M17.5 11h.01"/><path d="M17 5H7a5 5 0 0 0-5 5v4a4 4 0 0 0 6.5 3.1l1.2-1a1 1 0 0 1 1.2 0l1.2 1A4 4 0 0 0 22 14v-4a5 5 0 0 0-5-5Z"/>',
+  'Outdoor Living': '<path d="M12 22v-9"/><path d="M12 13c-3 0-5-2-5-5 3 0 5 2 5 5Z"/><path d="M12 16c2.5 0 4-1.5 4-4-2.5 0-4 1.5-4 4Z"/><path d="M12 19c-2 0-3.5-1-3.5-3 2 0 3.5 1 3.5 3Z"/>',
+  'Office Products': '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  Baby: '<path d="M9 3h6M10 3a1 1 0 0 1 1 1h2a1 1 0 0 1 1-1"/><rect x="8" y="8" width="8" height="12" rx="3"/>',
+  'Irons, Steamers & Accessories': '<path d="M3 17h18l-1.5-5H8l-2-3H3"/><path d="M7 20h13"/>',
+  'Home & Kitchen Appliances': '<rect x="9" y="3" width="6" height="4"/><path d="M8 7h8l-1 14H9Z"/><path d="M12 10v3M12 16h.01"/>',
+  'Sports, Fitness & Outdoors': '<path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/>',
+  'Grocery & Gourmet Foods': '<path d="M5 8h14l1 13H4Z"/><path d="M8 8a4 4 0 0 1 8 0"/>',
+  Shoes: '<path d="M4 16a8 8 0 0 1 8-8h4l2 3-2 3h-5l-1 2H4Z"/><path d="M2 20h16a2 2 0 0 0 2-2v-2"/>',
+  'Light Bulbs': '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 1 4 10.5c-.6.5-1 1.2-1 2V16h-6v-.5c0-.8-.4-1.5-1-2A6 6 0 0 1 12 3Z"/>',
+  'Under-Bed Storage': '<path d="M3 7h18M3 7l2 13h14l2-13M12 7V4"/>',
+  Ladders: '<path d="M6 3h3M14 3h3M7 3l10 18M9 7l6 5M10 11l5 4M12 15l3 3"/>',
+  'Magnetic Boards': '<rect x="4" y="4" width="16" height="12" rx="2"/><path d="M12 16v4M8 20h8"/><circle cx="12" cy="10" r="1.5"/>',
+  'Hair Dryers': '<path d="M4 14a8 8 0 0 1 8-8c2 0 3 .5 4 1.5L20 10a2 2 0 0 1 0 2.8l-1.5 1.5A8 8 0 0 1 4 14Z"/><path d="M16 21a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2Z"/>',
 };
 
 export const GENERAL_BUYING_TIPS = [

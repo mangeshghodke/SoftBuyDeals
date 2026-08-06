@@ -1,18 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
-import { CATEGORY_GUIDES, GENERAL_BUYING_TIPS } from '../../lib/categories';
+import { CATEGORY_GUIDES, GENERAL_BUYING_TIPS, GENERIC_GUIDE, getCategoryKey } from '../../lib/categories';
 import { SITE_URL } from '../../config';
 
 const rawSlug = Astro.params.category || '';
 const slug = rawSlug.toLowerCase();
-const categoryKey = Object.keys(CATEGORY_GUIDES).find(k => k.toLowerCase() === slug);
-
-if (!categoryKey) {
-  return Astro.redirect('/guides/', 301);
-}
-
-const guide = CATEGORY_GUIDES[categoryKey];
+const categoryKey = getCategoryKey(slug);
+const guide = categoryKey ? CATEGORY_GUIDES[categoryKey] : GENERIC_GUIDE;
+const displayName = categoryKey || rawSlug.trim() || 'Product';
 
 const catColors: Record<string, string> = {
   Electronics: 'from-indigo-500 to-purple-600',
@@ -72,8 +68,8 @@ const seoMeta: Record<string, { title: string; description: string }> = {
     description: 'Paperback vs hardcover, Kindle vs print and how to pick books you\u2019ll love — shop the best book deals in India with our buying guide.',
   },
 };
-const seoTitle = seoMeta[categoryKey]?.title || `${categoryKey} Buying Guide`;
-const seoDescription = seoMeta[categoryKey]?.description || `Expert ${categoryKey.toLowerCase()} buying guide — tips and recommendations to help you choose the best products on Amazon.in`;
+const seoTitle = (categoryKey && seoMeta[categoryKey]?.title) || `${displayName} Buying Guide`;
+const seoDescription = (categoryKey && seoMeta[categoryKey]?.description) || `Expert ${displayName.toLowerCase()} buying guide — tips and recommendations to help you choose the best products on Amazon.in`;
 ---
 
 <BaseLayout
@@ -84,7 +80,7 @@ const seoDescription = seoMeta[categoryKey]?.description || `Expert ${categoryKe
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
       <Breadcrumb items={[
         { label: 'Buying Guides', url: '/guides/' },
-        { label: `${categoryKey} Buying Guide` },
+        { label: `${displayName} Buying Guide` },
       ]} />
 
       <div class={`w-14 h-14 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-6`}>
@@ -127,10 +123,10 @@ const seoDescription = seoMeta[categoryKey]?.description || `Expert ${categoryKe
 
       <div class="mt-10 text-center">
         <a
-          href={`/products/?category=${encodeURIComponent(categoryKey)}`}
+          href={`/products/?category=${encodeURIComponent(displayName)}`}
           class="inline-flex items-center gap-2 px-8 py-4 bg-primary-600 text-white rounded-xl text-lg font-semibold hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/25 hover:shadow-primary-600/40"
         >
-          Browse {categoryKey} Deals
+          Browse {displayName} Deals
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </a>
       </div>
@@ -143,7 +139,7 @@ const seoDescription = seoMeta[categoryKey]?.description || `Expert ${categoryKe
   '@type': 'FAQPage',
   mainEntity: guide.tips.map((tip, i) => ({
     '@type': 'Question',
-    name: `${i + 1}. ${categoryKey} Buying Tip`,
+    name: `${i + 1}. ${displayName} Buying Tip`,
     acceptedAnswer: {
       '@type': 'Answer',
       text: tip,

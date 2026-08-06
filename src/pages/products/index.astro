@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getProducts } from '../../lib/data';
-import { CATEGORY_GUIDES } from '../../lib/categories';
+import { getCategoryGuide, getGuideSlug } from '../../lib/categories';
 
 const PER_PAGE = 12;
 
@@ -114,10 +114,10 @@ function pageRange(): (number | '...')[] {
         </p>
       </div>
 
-      {selectedCategory && CATEGORY_GUIDES[selectedCategory] && (
+      {selectedCategory && (
         <div class="mb-8 p-6 glass-panel rounded-2xl">
-          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{CATEGORY_GUIDES[selectedCategory].description}</p>
-          <a href={`/guides/${encodeURIComponent(selectedCategory.toLowerCase())}/`} class="inline-flex items-center gap-1 mt-3 text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline">
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{getCategoryGuide(selectedCategory).description}</p>
+          <a href={`/guides/${getGuideSlug(selectedCategory)}/`} class="inline-flex items-center gap-1 mt-3 text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline">
             Read our {selectedCategory} Buying Guide
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </a>
