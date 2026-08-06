@@ -37,11 +37,48 @@ const catIcons: Record<string, string> = {
   Books: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6.5a1.5 1.5 0 0 0 0 3H19"/><path d="M4 19.5V6"/>',
 };
 const iconSvg = catIcons[categoryKey] || '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a2.5 2.5 0 0 1 0-5H20"/>';
+
+const seoMeta: Record<string, { title: string; description: string }> = {
+  Electronics: {
+    title: 'Electronics Buying Guide 2026: Best Gadgets in India',
+    description: 'Confused choosing between smartphones, laptops and gadgets? Our electronics buying guide covers specs, battery, display and value picks on Amazon.in.',
+  },
+  Headphones: {
+    title: 'Headphones Buying Guide India: Wireless, ANC & Picks',
+    description: 'Wired vs wireless, ANC, battery life and codecs — learn how to pick the perfect earbuds or over-ear headphones in India without overpaying.',
+  },
+  Smartphones: {
+    title: 'Smartphone Buying Guide India: Under ₹10K to ₹50K',
+    description: 'Find the right phone for your budget in India. Compare processors, cameras, displays and update policies to buy the best smartphone on Amazon.in.',
+  },
+  'Smart Home': {
+    title: 'Smart Home Buying Guide India: Alexa Setup on a Budget',
+    description: 'Build a connected home on a budget. Compare Alexa devices, security cameras, smart bulbs and smart plugs at the best prices on Amazon.in.',
+  },
+  'Home & Kitchen': {
+    title: 'Home & Kitchen Appliances Buying Guide in India',
+    description: 'Pick the right mixer grinder, air fryer, induction cooktop and more. Our guide helps you buy durable home & kitchen appliances at the best price.',
+  },
+  'Fashion & Beauty': {
+    title: 'Fashion & Beauty Buying Guide: Shop Smart in India',
+    description: 'Sizing, fabric, skincare ingredients and fragrance tips — shop fashion & beauty online in India with confidence and avoid returns.',
+  },
+  Gaming: {
+    title: 'Gaming Gear Buying Guide India: Console or PC?',
+    description: 'Console vs PC gaming, GPUs, gaming mice and headsets — choose the right gaming gear in India that fits your budget and play style.',
+  },
+  Books: {
+    title: 'Book Buying Guide in India: Find Your Next Great Read',
+    description: 'Paperback vs hardcover, Kindle vs print and how to pick books you\u2019ll love — shop the best book deals in India with our buying guide.',
+  },
+};
+const seoTitle = seoMeta[categoryKey]?.title || `${categoryKey} Buying Guide`;
+const seoDescription = seoMeta[categoryKey]?.description || `Expert ${categoryKey.toLowerCase()} buying guide — tips and recommendations to help you choose the best products on Amazon.in`;
 ---
 
 <BaseLayout
-  title={`${categoryKey} Buying Guide`}
-  description={`Expert ${categoryKey.toLowerCase()} buying guide — tips, advice, and recommendations to help you choose the best products on Amazon.in`}
+  title={seoTitle}
+  description={seoDescription}
 >
   <section class="py-16 md:py-24">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
