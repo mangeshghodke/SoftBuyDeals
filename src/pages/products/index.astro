@@ -25,6 +25,7 @@ const catColors: Record<string, string> = {
 };
 const colorKeys = Object.keys(catColors);
 const selectedCategory = Astro.url.searchParams.get('category');
+const searchQuery = (Astro.url.searchParams.get('q') || '').trim();
 const sortedCategories = selectedCategory
   ? [selectedCategory, ...categoryNames.filter(c => c !== selectedCategory)]
   : categoryNames;
@@ -37,9 +38,17 @@ const scrollCatItems: ScrollCatItem[] = sortedCategories.map((cat, i) => {
   const border = active ? c.replace('0.15','0.6') : c.replace('0.15','0.3');
   return { name: cat, bg, border };
 });
-const filtered = selectedCategory
+let filtered = selectedCategory
   ? allProducts.filter(p => p.category === selectedCategory)
   : allProducts;
+if (searchQuery) {
+  const q = searchQuery.toLowerCase();
+  filtered = filtered.filter(p =>
+    p.title.toLowerCase().includes(q) ||
+    (p.description || '').toLowerCase().includes(q) ||
+    (p.category || '').toLowerCase().includes(q)
+  );
+}
 const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
 const currentPage = Math.min(totalPages, Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1', 10) || 1));
 const products = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
@@ -47,6 +56,7 @@ const products = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_
 function pageUrl(page: number): string {
   const params = new URLSearchParams();
   if (selectedCategory) params.set('category', selectedCategory);
+  if (searchQuery) params.set('q', searchQuery);
   if (page > 1) params.set('page', String(page));
   const qs = params.toString();
   return qs ? `/products/?${qs}` : '/products/';
@@ -69,7 +79,7 @@ function pageRange(): (number | '...')[] {
 }
 ---
 
-<BaseLayout title={selectedCategory ? `${selectedCategory} Deals on Amazon.in` : 'Products & Best Deals on Amazon.in'} description={selectedCategory ? `Best ${selectedCategory} deals curated from Amazon.in — compare ratings, prices and offers before you buy.` : 'Browse our curated collection of top-rated products with the best deals on Amazon.in.'}>
+<BaseLayout title={searchQuery ? `Search: ${searchQuery} | Products & Best Deals on Amazon.in` : selectedCategory ? `${selectedCategory} Deals on Amazon.in` : 'Products & Best Deals on Amazon.in'} description={searchQuery ? `Search results for "${searchQuery}" — curated products with the best deals on Amazon.in.` : selectedCategory ? `Best ${selectedCategory} deals curated from Amazon.in — compare ratings, prices and offers before you buy.` : 'Browse our curated collection of top-rated products with the best deals on Amazon.in.'}>
   <section class="py-8 md:py-16">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <Breadcrumb items={selectedCategory
@@ -77,12 +87,30 @@ function pageRange(): (number | '...')[] {
         : [{ label: 'Products' }]
       } />
 
+      <form action="/products/" method="get" role="search" class="max-w-xl mx-auto mb-8">
+        <label for="q" class="sr-only">Search products</label>
+        <div class="relative">
+          <svg class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"></path>
+          </svg>
+          <input
+            type="search"
+            id="q"
+            name="q"
+            value={searchQuery}
+            placeholder="Search products..."
+            class="w-full h-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-11 pr-20 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-colors"
+          />
+          <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors">Search</button>
+        </div>
+      </form>
+
       <div class="text-center mb-4">
         <h1 class="font-heading text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-          {selectedCategory ? `${selectedCategory} Deals` : 'Best Deals on '}<span class="text-gradient">{selectedCategory ? '' : 'Amazon.in'}</span>
+          {searchQuery ? `Results for "${searchQuery}"` : selectedCategory ? `${selectedCategory} Deals` : 'Best Deals on '}<span class="text-gradient">{!searchQuery && !selectedCategory ? 'Amazon.in' : ''}</span>
         </h1>
         <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-          Curated products handpicked just for you. Click & buy directly from Amazon.in.
+          {searchQuery ? `${filtered.length} product${filtered.length === 1 ? '' : 's'} found for "${searchQuery}".` : 'Curated products handpicked just for you. Click & buy directly from Amazon.in.'}
         </p>
       </div>
 
@@ -102,7 +130,7 @@ function pageRange(): (number | '...')[] {
           <div class="relative" id="cat-scroll-wrap">
             <div id="cat-scroll" class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin" style="scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin">
               <a
-                href="/products/"
+                href={`/products/${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}
                 class="shrink-0 snap-start scroll-ml-4"
                 style="scroll-snap-align:start"
               >
@@ -112,7 +140,7 @@ function pageRange(): (number | '...')[] {
               </a>
               {scrollCatItems.map(item => (
                 <a
-                  href={`/products/?category=${encodeURIComponent(item.name)}`}
+                  href={`/products/?category=${encodeURIComponent(item.name)}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`}
                   class="shrink-0 snap-start"
                   style="scroll-snap-align:start"
                 >
@@ -137,8 +165,12 @@ function pageRange(): (number | '...')[] {
           <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-6 text-slate-300 dark:text-slate-600">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
-          <h2 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No products yet</h2>
-          <p class="text-slate-500 dark:text-slate-400">Check back soon for amazing deals!</p>
+          <h2 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No products found</h2>
+          <p class="text-slate-500 dark:text-slate-400">Try a different search term or browse all products.</p>
+          <a href="/products/" class="inline-flex items-center gap-1 mt-4 text-primary-600 dark:text-primary-400 font-medium hover:underline text-sm">
+            View all products
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
         </div>
       ) : (
         <>
