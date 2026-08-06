@@ -25,11 +25,19 @@ export function getCategoryGuide(category: string): CategoryGuide {
 }
 
 export function getGuideSlug(category: string): string {
-  return encodeURIComponent(category.toLowerCase().trim());
+  return category
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 export function getCategoryKey(slug: string): string | undefined {
-  return Object.keys(CATEGORY_GUIDES).find(k => k.toLowerCase().trim() === slug.toLowerCase().trim());
+  const clean = slug.toLowerCase().trim();
+  return (
+    Object.keys(CATEGORY_GUIDES).find(k => k.toLowerCase().trim() === clean) ||
+    Object.keys(CATEGORY_GUIDES).find(k => getGuideSlug(k) === clean)
+  );
 }
 
 export const CATEGORY_GUIDES: Record<string, CategoryGuide> = {

@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { getProducts } from '../lib/db';
-import { CATEGORY_GUIDES } from '../lib/categories';
+import { CATEGORY_GUIDES, getGuideSlug } from '../lib/categories';
 
 export const GET: APIRoute = async () => {
   const db = env.DB;
@@ -12,7 +12,7 @@ export const GET: APIRoute = async () => {
       title: `${name} Buying Guide`,
       description: guide.guideIntro,
       slug: '/guides/',
-      url: `/guides/${encodeURIComponent(name.toLowerCase())}/`,
+      url: `/guides/${getGuideSlug(name)}/`,
       type: 'Guide',
       category: name,
     })),

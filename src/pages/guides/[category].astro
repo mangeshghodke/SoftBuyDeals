@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
-import { CATEGORY_GUIDES, GENERAL_BUYING_TIPS, GENERIC_GUIDE, getCategoryKey } from '../../lib/categories';
+import { CATEGORY_GUIDES, GENERAL_BUYING_TIPS, GENERIC_GUIDE, getCategoryKey, getGuideSlug } from '../../lib/categories';
 import { SITE_URL } from '../../config';
 
 const rawSlug = Astro.params.category || '';
@@ -9,6 +9,14 @@ const slug = rawSlug.toLowerCase();
 const categoryKey = getCategoryKey(slug);
 const guide = categoryKey ? CATEGORY_GUIDES[categoryKey] : GENERIC_GUIDE;
 const displayName = categoryKey || rawSlug.trim() || 'Product';
+
+if (categoryKey) {
+  const canonicalSlug = getGuideSlug(categoryKey);
+  const currentSlug = Astro.url.pathname.replace(/\/+$/, '').split('/').pop() || '';
+  if (currentSlug !== canonicalSlug) {
+    return Astro.redirect(`/guides/${canonicalSlug}/`, 301);
+  }
+}
 
 const catColors: Record<string, string> = {
   Electronics: 'from-indigo-500 to-purple-600',
