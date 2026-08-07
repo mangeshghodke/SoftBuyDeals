@@ -34,3 +34,6 @@ data/
 # jetbrains setting folder
 .idea/
 .sessions/
+
+# opencode session data
+.opencode/
