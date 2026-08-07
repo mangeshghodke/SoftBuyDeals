@@ -26,8 +26,8 @@ The admin panel lets you add products, and product posts are automatically share
 
 - 🚀 **Astro v6** with server-side rendering
 - 🎨 **Tailwind CSS v4** styling
-- 🔐 **Admin dashboard** with JWT auth, CSRF protection, scrypt password hashing
-- 🛍️ **Amazon scraper** — paste an Amazon URL, auto-fill product details
+- 🔐 **Admin dashboard** with session-cookie auth (HMAC, 24h TTL), CSRF protection, scrypt password hashing
+- 🛍️ **Amazon Associates deals** — curated deals with client-side Amazon capture (server-side scraping is blocked by Amazon)
 - 🤖 **Auto-posting** to **Telegram channel** (photo + caption + inline keyboard)
 - 📱 **Auto-posting** to **Threads (Meta)** (image + structured caption)
 - 👁️ **Visitor counter** (D1-persisted)
@@ -118,7 +118,7 @@ src/
 ├── lib/
 │   ├── db.ts        # D1 CRUD (async, products + visitor_counter)
 │   ├── data.ts      # Re-exports from db.ts
-│   ├── session.ts   # JWT + CSRF helpers
+│   ├── session.ts   # HMAC session cookie + CSRF helpers
 │   ├── rate-limit.ts# D1-backed rate limiting
 │   ├── telegram.ts   # notifyProduct() → Telegram channel
 │   └── threads.ts    # postThread() → Meta Threads
@@ -160,7 +160,7 @@ Product creation triggers Telegram + Threads via `cfContext.waitUntil()` — the
 | `/admin/add/` | Add product (or fetch from Amazon URL) |
 | `/admin/edit/[id]/` | Edit existing product |
 
-Auth: JWT stored in `astro-auth-jwt` cookie + CSRF token via meta tag.
+Auth: HMAC-signed session cookie (24h TTL) + CSRF token via meta tag.
 
 ---
 
@@ -170,6 +170,32 @@ Auth: JWT stored in `astro-auth-jwt` cookie + CSRF token via meta tag.
 - **Build**: `npm run build` (Astro SSR build + postbuild.mjs)
 - **Deploy**: `npm run deploy` (wrangler deploy with `dist/server/wrangler.json`)
 - **CI**: GitHub Actions on push to `main` — `npm ci && npm run build && wrangler deploy`
+
+---
+
+## 📱 SoftBuyDeals Mobile App
+
+The official **SoftBuyDeals Android admin app** lets you add and edit products right from your phone.
+
+- **Package**: `in.softbuydeals.app` — built with **Expo SDK 57 / React Native 0.86** (new architecture)
+- **ARM64-only** build (`arm64-v8a`) — smaller, ~35 MB release APK
+- **Backend**: consumes the same site JSON API (`/api/products`) over HTTPS
+  - JSON-mode login (`POST /api/login` with `Accept: application/json` → 200 + `Set-Cookie`)
+  - CSRF-guarded writes via `GET /api/csrf` (session-guarded)
+  - Accepts JSON bodies (not just form-data) on all write endpoints
+- **Features**: session auth (24h HMAC cookie), product add/edit with price normalization (₹ auto-prepend), image URL fields (up to 3), coupon, rating, category, AI description/review generation
+- **Splash**: website-themed (indigo `#4f46e5`) SBD rounded-square logo + "SoftBuyDeals"
+- **Companion repo**: https://github.com/mangeshghodke/SoftBuyDeals-App
+
+Build a standalone release APK locally:
+
+```bash
+cd app   # or clone the SoftBuyDeals-App repo
+npx expo prebuild -p android --no-install
+cd android && ./gradlew assembleRelease   # output: app/build/outputs/apk/release/app-release.apk
+```
+
+Requires Android SDK (arm64) + JDK 17+. The APK is signed with the debug keystore — generate a real keystore before publishing to the Play Store.
 
 ---
 
