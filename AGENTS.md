@@ -26,7 +26,8 @@ Amazon Associates deals site. Live at https://softbuydeals.in. SSR via Cloudflar
 - `src/pages/guides/[category].astro`: guide page, 301-canonicalization, seoMeta
 - `src/pages/products/[id].astro`: canonical product page (Product schema, review, coupon, related)
 - `src/pages/api/products.ts`: full JSON API — GET (all/single via `?id=`), POST (create or update-if-`id` present), PUT (update), DELETE (`?id=` + `x-csrf-token` header). Returns JSON when `Accept: application/json`. Writes fire Telegram + Threads via `ctx.waitUntil`.
-- `src/pages/api/login.ts`: form-only login (redirects, no JSON mode yet). App needs JSON mode added.
+- `src/pages/api/login.ts`: login with JSON mode (`Accept: application/json` → JSON response + Set-Cookie), plus HTML redirect mode for forms
+- `src/pages/api/csrf.ts`: GET endpoint returning `{csrfToken}` (session-guarded) — used by the mobile app
 - `src/pages/api/generate-description.ts`, `generate-review.ts`: AI copy generation (session + CSRF guarded)
 - `src/lib/session.ts`: session cookie (HMAC, 24h TTL) + CSRF tokens
 - `src/middleware.ts`: www→apex 301, admin auth guard, security headers/CSP
@@ -39,7 +40,7 @@ Amazon Associates deals site. Live at https://softbuydeals.in. SSR via Cloudflar
 
 ## External integrations
 - Telegram notify on product create (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHANNEL_ID`)
-- Threads post on create (`THREADS_ACCESS_TOKEN`, `THREADS_USER_ID`) — text-only (API can't post image+text in one request)
+- Threads post on create (`THREADS_ACCESS_TOKEN`, `THREADS_USER_ID`) — text-only (API can't post image+text in one request); caption capped at 500 chars by truncating the title line
 - Contact form via Resend from support@softbuydeals.in
 - AI: `@cf/zai-org/glm-4.7-flash` model
 
@@ -50,7 +51,8 @@ Amazon Associates deals site. Live at https://softbuydeals.in. SSR via Cloudflar
 
 ## Mobile app (companion project)
 - Built separately in `../app/` (Expo/React Native, own git repo) — see `../app/AGENTS.md`
-- Consumes the same JSON API over HTTPS. Two backend changes needed before app write flows work:
-  1. JSON mode on `POST /api/login` (200 + Set-Cookie when `Accept: application/json`)
-  2. New `GET /api/csrf/` endpoint (session-guarded) returning `{csrfToken}`
+- Consumes the same JSON API over HTTPS. Backend is ready for app write flows:
+  1. JSON mode on `POST /api/login` (200 + Set-Cookie when `Accept: application/json`) — DONE
+  2. `GET /api/csrf/` endpoint (session-guarded) returning `{csrfToken}` — DONE
+  - Products API also accepts JSON bodies (not just form-data)
 - App testing uses the LIVE API — test products are real and must be deleted after testing (or add TEST_MODE to point at a dev API)
